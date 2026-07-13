@@ -51,3 +51,4 @@ class DocumentReader:
             tables=len(self.doc.tables),
             images=image_count,
         )
+        def load_book(self) -> Book:
