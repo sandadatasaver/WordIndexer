@@ -34,11 +34,20 @@ class DictionaryEntry:
 
 
 @dataclass(slots=True)
-class Match:
+class RunLocation:
     """
-    One occurrence of a concept.
+    Exact location of text inside a paragraph.
     """
 
+    paragraph_index: int
+    run_index: int
+    start: int
+    end: int
+    matched_text: str
+
+
+@dataclass(slots=True)
+class Match:
     term: str
     matched_text: str
     paragraph_index: int
@@ -48,6 +57,8 @@ class Match:
     page: Optional[int] = None
     section: int = 0
     heading: str = ""
+
+    locations: List[RunLocation] = field(default_factory=list)
 
 
 @dataclass(slots=True)
@@ -59,5 +70,4 @@ class Book:
     headings: List[Heading] = field(default_factory=list)
 
     matches: List[Match] = field(default_factory=list)
-
     term_matches: dict[str, List[Match]] = field(default_factory=dict)

@@ -1,62 +1,10 @@
-Version 1
-
-\---------
-
-Automatic Microsoft Word indexing
+\# Vision
 
 
 
-Version 2
-
-\---------
-
-Book analysis
+To create the world's leading open-source engine for automatic Microsoft Word indexing, empowering authors, researchers, lecturers, students, publishers, and organizations to produce professional indexes quickly, accurately, and consistently.
 
 
 
-Version 3
-
-\---------
-
-Glossary generation
-
-
-
-Version 4
-
-\---------
-
-Quality reports
-
-
-
-Version 5
-
-\---------
-
-AI-assisted indexing
-
-
-
-Version 6
-
-\---------
-
-Desktop application
-
-
-
-Version 7
-
-\---------
-
-Cross-platform (Windows, macOS, Linux)
-
-
-
-Version 8
-
-\---------
-
-Cloud collaboration
+WordIndexer aims to evolve into a comprehensive document intelligence platform while remaining open, extensible, and community-driven.
 
