@@ -1,14 +1,10 @@
-from wordindexer.models import IndexEntry
+from wordindexer.models import Book
 
 
-def test_index_entry():
+def test_book():
 
-    item = IndexEntry(term="Copy-Item")
+    book = Book()
 
-    assert item.term == "Copy-Item"
+    assert book.title == ""
 
-    assert item.whole_word
-
-    assert item.first_only
-
-    assert item.enabled
+    assert len(book.paragraphs) == 0

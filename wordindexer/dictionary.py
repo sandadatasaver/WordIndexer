@@ -8,9 +8,13 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
+from wordindexer.models import DictionaryEntry
+
 
 @dataclass(slots=True)
 class DictionaryInfo:
+    """Basic information about a dictionary."""
+
     name: str
     version: str
     author: str
@@ -18,25 +22,52 @@ class DictionaryInfo:
 
 
 class DictionaryLoader:
+    """
+    Loads a WordIndexer dictionary.
+    """
 
     def __init__(self, filename: str | Path):
 
         self.path = Path(filename)
 
         if not self.path.exists():
-            raise FileNotFoundError(self.path)
+            raise FileNotFoundError(f"Dictionary not found: {self.path}")
 
         with self.path.open("r", encoding="utf-8") as f:
             self.data = json.load(f)
 
     def info(self) -> DictionaryInfo:
+        """
+        Return dictionary metadata.
+        """
 
-        meta = self.data.get("metadata", {})
+        metadata = self.data.get("metadata", {})
         entries = self.data.get("entries", [])
 
         return DictionaryInfo(
-            name=meta.get("name", ""),
-            version=meta.get("version", ""),
-            author=meta.get("author", ""),
+            name=metadata.get("name", ""),
+            version=metadata.get("version", ""),
+            author=metadata.get("author", ""),
             entries=len(entries),
         )
+
+    def load_entries(self) -> list[DictionaryEntry]:
+        """
+        Load all dictionary entries.
+        """
+
+        entries: list[DictionaryEntry] = []
+
+        for item in self.data.get("entries", []):
+
+            entries.append(
+                DictionaryEntry(
+                    term=item.get("term", ""),
+                    aliases=item.get("aliases", []),
+                    category=item.get("category", ""),
+                    enabled=item.get("enabled", True),
+                    index_as=item.get("index_as", item.get("term", "")),
+                )
+            )
+
+        return entries

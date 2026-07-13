@@ -7,10 +7,13 @@ WordIndexer
 from __future__ import annotations
 
 import argparse
-from wordindexer.document import DocumentReader
-from wordindexer.version import VERSION
-from wordindexer.logger import setup_logger
+
 from wordindexer.config import ConfigManager
+from wordindexer.dictionary import DictionaryLoader
+from wordindexer.document import DocumentReader
+from wordindexer.logger import setup_logger
+from wordindexer.search import SearchEngine
+from wordindexer.version import VERSION
 
 
 logger = setup_logger()
@@ -23,67 +26,99 @@ def cmd_inspect(args):
     info = reader.inspect()
 
     print()
-
     print("Document Information")
     print("--------------------")
-
     print(f"Title       : {info.title}")
     print(f"Author      : {info.author}")
     print(f"Subject     : {info.subject}")
 
     print()
-
     print("Statistics")
     print("----------")
-
     print(f"Paragraphs  : {info.paragraphs}")
     print(f"Tables      : {info.tables}")
     print(f"Images      : {info.images}")
-
     print()
 
-    print("Done.")
+
+def cmd_analyze(args):
+
+    reader = DocumentReader(args.document)
+
+    book = reader.load_book()
+
+    loader = DictionaryLoader(args.dictionary)
+
+    entries = loader.load_entries()
+
+    engine = SearchEngine(book)
+
+    results = engine.search(entries)
+
+    print()
+    print("Search Results")
+    print("--------------")
+
+    total = 0
+
+    for term in sorted(results):
+
+        count = len(results[term])
+
+        total += count
+
+        print(f"{term:<35} {count}")
+
+    print()
+    print(f"Total Matches : {total}")
 
 
 def cmd_index(args):
-    logger.info("Index command selected.")
-    print(f"Indexing : {args.document}")
+
+    print("Index command not implemented yet.")
 
 
 def build_parser():
 
     parser = argparse.ArgumentParser(
         prog="book_indexer.py",
-        description="Automatic Microsoft Word Index Generator"
+        description="Automatic Microsoft Word Index Generator",
     )
 
     parser.add_argument(
         "--version",
         action="version",
-        version=f"WordIndexer {VERSION}"
+        version=f"WordIndexer {VERSION}",
     )
 
     sub = parser.add_subparsers(dest="command")
 
     inspect_parser = sub.add_parser(
         "inspect",
-        help="Inspect a document"
+        help="Inspect a document",
     )
 
-    inspect_parser.add_argument(
-        "document"
-    )
+    inspect_parser.add_argument("document")
 
     inspect_parser.set_defaults(func=cmd_inspect)
 
-    index_parser = sub.add_parser(
-        "index",
-        help="Insert index entries"
+    analyze_parser = sub.add_parser(
+        "analyze",
+        help="Analyze a document",
     )
 
-    index_parser.add_argument(
-        "document"
+    analyze_parser.add_argument("document")
+
+    analyze_parser.add_argument("dictionary")
+
+    analyze_parser.set_defaults(func=cmd_analyze)
+
+    index_parser = sub.add_parser(
+        "index",
+        help="Insert index entries",
     )
+
+    index_parser.add_argument("document")
 
     index_parser.set_defaults(func=cmd_index)
 

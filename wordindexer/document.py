@@ -1,5 +1,5 @@
 """
-Document reader for WordIndexer.
+Document reader.
 """
 
 from __future__ import annotations
@@ -10,6 +10,7 @@ from pathlib import Path
 from docx import Document
 
 from wordindexer.exceptions import DocumentError
+from wordindexer.models import Book, Heading, Paragraph
 
 
 @dataclass(slots=True)
@@ -51,4 +52,44 @@ class DocumentReader:
             tables=len(self.doc.tables),
             images=image_count,
         )
-        def load_book(self) -> Book:
+
+    def load_book(self) -> Book:
+
+        props = self.doc.core_properties
+
+        book = Book(
+            title=props.title or "",
+            author=props.author or "",
+        )
+
+        for i, para in enumerate(self.doc.paragraphs):
+
+            style = ""
+
+            if para.style:
+                style = para.style.name
+
+            p = Paragraph(
+                index=i,
+                text=para.text,
+                style=style,
+            )
+
+            book.paragraphs.append(p)
+
+            if style.startswith("Heading"):
+
+                try:
+                    level = int(style.split()[-1])
+                except Exception:
+                    level = 1
+
+                book.headings.append(
+                    Heading(
+                        level=level,
+                        text=para.text,
+                        paragraph_index=i,
+                    )
+                )
+
+        return book

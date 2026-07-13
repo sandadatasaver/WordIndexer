@@ -1,7 +1,7 @@
 from wordindexer.document import DocumentReader
 
 
-def test_book_load():
+def test_load_book():
 
     reader = DocumentReader("input/sample.docx")
 

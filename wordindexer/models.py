@@ -1,11 +1,15 @@
+"""
+Domain models used throughout WordIndexer.
+"""
+
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from typing import List, Optional
 
 
 @dataclass(slots=True)
 class Paragraph:
-    """Represents one paragraph in the document."""
-
     index: int
     text: str
     style: str = ""
@@ -15,36 +19,39 @@ class Paragraph:
 
 @dataclass(slots=True)
 class Heading:
-    """Represents a document heading."""
-
     level: int
     text: str
     paragraph_index: int
 
 
 @dataclass(slots=True)
-class Match:
-    """Represents one indexed occurrence."""
-
-    term: str
-    paragraph_index: int
-    paragraph_text: str
-
-
-@dataclass(slots=True)
 class DictionaryEntry:
-    """Represents one dictionary entry."""
-
     term: str
     aliases: List[str] = field(default_factory=list)
     category: str = ""
     enabled: bool = True
+    index_as: str = ""
+
+
+@dataclass(slots=True)
+class Match:
+    """
+    One occurrence of a concept.
+    """
+
+    term: str
+    matched_text: str
+    paragraph_index: int
+    paragraph_text: str
+
+    paragraph_style: str = ""
+    page: Optional[int] = None
+    section: int = 0
+    heading: str = ""
 
 
 @dataclass(slots=True)
 class Book:
-    """Internal representation of the document."""
-
     title: str = ""
     author: str = ""
 
@@ -52,3 +59,5 @@ class Book:
     headings: List[Heading] = field(default_factory=list)
 
     matches: List[Match] = field(default_factory=list)
+
+    term_matches: dict[str, List[Match]] = field(default_factory=dict)
