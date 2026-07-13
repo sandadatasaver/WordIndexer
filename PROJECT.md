@@ -19,7 +19,10 @@ The goal is to provide authors, publishers, researchers, students, churches, and
 Unlike existing solutions, WordIndexer will use customizable JSON dictionaries, intelligent matching, alias support, and nested index entries to generate publication-quality indexes.
 
 ---
+## Vision
 
+To become the world's leading open-source manuscript analysis and indexing platform for Microsoft Word documents.
+---
 # Project Objectives
 
 * Read Microsoft Word (.docx) documents.
