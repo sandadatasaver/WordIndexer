@@ -1,12 +1,8 @@
 {
-  "ignore_before_toc": true,
-  "whole_word_only": true,
-  "case_sensitive": false,
-  "insert_first_occurrence_only": true,
-  "expand_aliases": true,
-  "generate_csv": true,
-  "generate_json": true,
-  "generate_log": true,
-  "fuzzy_matching": false,
-  "fuzzy_score": 90
+    "metadata": {
+        "name": "PowerShell Dictionary",
+        "version": "1.0",
+        "author": "WordIndexer"
+    },
+    "entries": []
 }
