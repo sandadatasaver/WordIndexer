@@ -1,0 +1,44 @@
+WordIndexer/
+├── .git/
+├── .pytest_cache/
+│   ├── v/
+│   │   └── cache/
+│   │       ├── lastfailed
+│   │       └── nodeids
+│   ├── .gitignore
+│   ├── CACHEDIR.TAG
+│   └── README.md
+├── dictionaries/
+│   └── powershell.json
+├── docs/
+│   ├── ARCHITECTURE.md
+│   ├── CHANGELOG.md
+│   └── ROADMAP.md
+├── examples/
+├── input/
+│   └── sample.docx
+├── output/
+│   └── .gitkeep
+├── tests/
+│   ├── __pycache__/
+│   ├── _init_.py
+│   └── test_models.py
+├── venv/
+├── wordindexer/
+│   ├── _init_.py
+│   ├── config.py
+│   ├── dictionary.py
+│   ├── document.py
+│   ├── logger.py
+│   ├── matcher.py
+│   ├── models.py
+│   ├── reports.py
+│   ├── toc.py
+│   ├── utils.py
+│   └── xe.py
+├── .gitignore
+├── README.md
+├── book_indexer.py
+├── config.json
+├── python_tree.py
+└── requirements.txt
