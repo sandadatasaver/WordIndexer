@@ -2,8 +2,9 @@ from wordindexer.dictionary import DictionaryLoader
 
 
 def test_dictionary():
-
-    loader = DictionaryLoader("dictionaries/powershell.json")
+    loader = DictionaryLoader(
+        "dictionaries/technology/powershell.json"
+    )
 
     info = loader.info()
 

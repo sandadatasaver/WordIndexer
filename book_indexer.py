@@ -11,6 +11,7 @@ import argparse
 from wordindexer.config import ConfigManager
 from wordindexer.dictionary import DictionaryLoader
 from wordindexer.document import DocumentReader
+from wordindexer.index import IndexEngine
 from wordindexer.logger import setup_logger
 from wordindexer.search import SearchEngine
 from wordindexer.version import VERSION
@@ -51,7 +52,7 @@ def cmd_analyze(args):
 
     entries = loader.load_entries()
 
-    engine = SearchEngine(book)
+    engine = SearchEngine(book, reader.doc)
 
     results = engine.search(entries)
 
@@ -75,7 +76,26 @@ def cmd_analyze(args):
 
 def cmd_index(args):
 
-    print("Index command not implemented yet.")
+    loader = DictionaryLoader(args.dictionary)
+    entries = loader.load_entries()
+
+    result = IndexEngine().index(
+        input_path=args.document,
+        dictionary=entries,
+        output_path=args.output,
+    )
+
+    print()
+    print("Indexing Complete")
+    print("-----------------")
+    print(f"TOC detected  : {result.toc_detected}")
+    print(f"Body starts   : {result.body_start}")
+    print(f"Terms found   : {result.terms_found}")
+    print(f"Terms missing : {result.terms_not_found}")
+    print(f"Occurrences   : {result.occurrences}")
+    print(f"XE fields    : {result.fields_inserted}")
+    print(f"Output        : {result.output_path}")
+    print()
 
 
 def build_parser():
@@ -119,6 +139,10 @@ def build_parser():
     )
 
     index_parser.add_argument("document")
+
+    index_parser.add_argument("dictionary")
+
+    index_parser.add_argument("output")
 
     index_parser.set_defaults(func=cmd_index)
 
