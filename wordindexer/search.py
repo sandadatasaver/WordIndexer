@@ -28,6 +28,8 @@ class SearchEngine:
         self.book = book
         self.document = document
         self.scanner = RunScanner(document) if document is not None else None
+        self.raw_match_count = 0
+        self.resolved_match_count = 0
 
     @staticmethod
     def _pattern(term: str) -> re.Pattern[str]:
@@ -175,7 +177,10 @@ class SearchEngine:
             for match in term_matches
         ]
 
+        self.raw_match_count = len(raw_matches)
         resolved_matches = MatchResolver().resolve(raw_matches)
+        self.resolved_match_count = len(resolved_matches)
+
         resolved_results: dict[str, list[Match]] = {
             term: []
             for term in results

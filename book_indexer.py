@@ -13,7 +13,7 @@ from wordindexer.dictionary import DictionaryLoader
 from wordindexer.document import DocumentReader
 from wordindexer.index import IndexEngine
 from wordindexer.logger import setup_logger
-from wordindexer.search import SearchEngine
+from wordindexer.reports import ReportBuilder
 from wordindexer.version import VERSION
 
 
@@ -44,34 +44,16 @@ def cmd_inspect(args):
 
 def cmd_analyze(args):
 
-    reader = DocumentReader(args.document)
-
-    book = reader.load_book()
-
     loader = DictionaryLoader(args.dictionary)
-
     entries = loader.load_entries()
+    report = ReportBuilder().build(args.document, entries)
 
-    engine = SearchEngine(book, reader.doc)
+    print(report.render_console())
 
-    results = engine.search(entries)
-
-    print()
-    print("Search Results")
-    print("--------------")
-
-    total = 0
-
-    for term in sorted(results):
-
-        count = len(results[term])
-
-        total += count
-
-        print(f"{term:<35} {count}")
-
-    print()
-    print(f"Total Matches : {total}")
+    if args.json_output:
+        report_path = report.write_json(args.json_output)
+        print()
+        print(f"JSON report       : {report_path}")
 
 
 def cmd_index(args):
@@ -134,6 +116,11 @@ def build_parser():
     analyze_parser.add_argument("document")
 
     analyze_parser.add_argument("dictionary")
+
+    analyze_parser.add_argument(
+        "--json-output",
+        help="Write the analysis report as JSON",
+    )
 
     analyze_parser.set_defaults(func=cmd_analyze)
 
