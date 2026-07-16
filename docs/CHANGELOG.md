@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Dry-run analysis and coverage reports.
+- JSON report export through `analyze --json-output`.
+- Report metrics for body boundaries, ignored paragraphs, missing terms, occurrences, and overlaps resolved.
+- Ignore rules for generated JSON, CSV, TXT, and HTML files under `output/`.
+
 ## 0.2.0 — 2026-07-16
 
 Automatic visible INDEX field release.

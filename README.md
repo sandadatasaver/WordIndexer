@@ -26,6 +26,8 @@ The current release has been tested against:
 - Excludes front matter using an explicit TOC boundary or first-chapter fallback.
 - Saves a new indexed document without modifying the source document.
 - Provides a command-line interface.
+- Produces dry-run coverage reports without modifying the manuscript.
+- Exports analysis reports as JSON.
 
 ## Current limitations
 

@@ -26,5 +26,11 @@ Desktop.ini
 output/*.docx
 output/*.pdf
 
+# Generated reports
+output/*.json
+output/*.csv
+output/*.txt
+output/*.html
+
 # Keep output folder
 !output/.gitkeep

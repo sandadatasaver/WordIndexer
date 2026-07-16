@@ -57,6 +57,12 @@ Some Word documents store their TOC as a field, image, or embedded structure tha
 
 The selected method is reported by the indexing command.
 
+## Active development milestone
+
+Dry-run analysis and coverage reports are now implemented on `develop`. They report body boundaries, ignored paragraphs, terms found and missing, total occurrences, overlaps resolved, and optional JSON output without modifying the source document.
+
+Generated report files are ignored under `output/`.
+
 ## Immediate next milestone
 
 Begin Version 2 planning and document traversal hardening:

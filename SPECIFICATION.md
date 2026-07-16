@@ -18,6 +18,8 @@ WordIndexer creates Microsoft Word indexes by inserting native XE (Index Entry) 
 - Allow the INDEX field to be disabled with `--no-index-field`.
 - Save a new DOCX document.
 - Support inspection, analysis, and indexing through the CLI.
+- Produce read-only console coverage reports.
+- Export analysis reports as JSON when requested.
 
 ## Supported input
 
