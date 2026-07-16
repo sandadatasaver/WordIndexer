@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 — 2026-07-16
+
+Analysis and coverage reports release.
 
 ### Added
 
@@ -8,6 +10,12 @@
 - JSON report export through `analyze --json-output`.
 - Report metrics for body boundaries, ignored paragraphs, missing terms, occurrences, and overlaps resolved.
 - Ignore rules for generated JSON, CSV, TXT, and HTML files under `output/`.
+
+### Validated
+
+- The complete regression suite passes.
+- Analysis does not modify the source DOCX.
+- The real PowerShell manuscript produced a report with 369 valid occurrences and 12 overlaps resolved.
 
 ## 0.2.0 — 2026-07-16
 
@@ -22,15 +30,10 @@ Automatic visible INDEX field release.
 
 ### Validated
 
-- The complete regression suite passes.
 - Generated documents open in Microsoft Word without repair warnings.
 - Word recognizes the XE fields and creates page-numbered indexes.
 - The visible INDEX field is populated by updating fields in Word.
 - The source document remains unchanged.
-
-### Known limitations
-
-- Table cells, headers, footers, footnotes, endnotes, and text boxes are not searched in this release.
 
 ## 0.1.0 — 2026-07-16
 

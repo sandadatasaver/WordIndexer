@@ -11,7 +11,7 @@ WordIndexer is an open-source engine for creating professional Microsoft Word in
 
 ## Current release
 
-**Version 0.2.0 — Automatic Index Field**
+**Version 0.3.0 — Analysis and Coverage Reports**
 
 The core indexing workflow has been validated with automated tests, a torture document, and a real PowerShell manuscript. The command now adds a visible Word INDEX field and an `Index` heading automatically.
 

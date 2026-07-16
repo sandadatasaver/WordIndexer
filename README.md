@@ -4,7 +4,7 @@ WordIndexer is an open-source Python tool that inserts native Microsoft Word XE 
 
 ## Current release
 
-**Version:** 0.2.0 — Automatic Index Field
+**Version:** 0.3.0 — Analysis and Coverage Reports
 
 The current release has been tested against:
 
