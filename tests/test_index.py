@@ -29,6 +29,7 @@ def test_index_engine_saves_xe_fields_and_excludes_toc(tmp_path):
 
     assert output.exists()
     assert result.toc_detected is True
+    assert result.toc_method == "title"
     assert result.body_start == 3
     assert result.terms_found == 1
     assert result.terms_not_found == 0

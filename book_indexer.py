@@ -89,6 +89,7 @@ def cmd_index(args):
     print("Indexing Complete")
     print("-----------------")
     print(f"TOC detected  : {result.toc_detected}")
+    print(f"TOC method    : {result.toc_method}")
     print(f"Body starts   : {result.body_start}")
     print(f"Terms found   : {result.terms_found}")
     print(f"Terms missing : {result.terms_not_found}")

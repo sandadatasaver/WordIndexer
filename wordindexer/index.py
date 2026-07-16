@@ -22,6 +22,7 @@ class IndexResult:
     input_path: Path
     output_path: Path
     toc_detected: bool
+    toc_method: str
     body_start: int
     terms_found: int
     terms_not_found: int
@@ -109,6 +110,7 @@ class IndexEngine:
             input_path=source,
             output_path=destination,
             toc_detected=toc.found,
+            toc_method=toc.method,
             body_start=toc.body_start,
             terms_found=found_terms,
             terms_not_found=terms_not_found,
