@@ -4,7 +4,7 @@ WordIndexer is an open-source Python tool that inserts native Microsoft Word XE 
 
 ## Current release
 
-**Version:** 0.1.0 — First Usable Core
+**Version:** 0.2.0 — Automatic Index Field
 
 The current release has been tested against:
 
@@ -21,13 +21,15 @@ The current release has been tested against:
 - Resolves overlapping matches by preferring the most specific match.
 - Preserves visible text and run formatting.
 - Inserts Word-compatible XE fields.
+- Appends a real Word `INDEX` field automatically.
+- Adds an `Index` heading before the generated index field.
 - Excludes front matter using an explicit TOC boundary or first-chapter fallback.
 - Saves a new indexed document without modifying the source document.
 - Provides a command-line interface.
 
 ## Current limitations
 
-Version 0.1.0 searches normal body paragraphs and headings. It does not yet index text inside:
+Version 0.2.0 searches normal body paragraphs and headings. It does not yet index text inside:
 
 - Table cells.
 - Headers and footers.
@@ -80,11 +82,25 @@ For a single-line command:
 python book_indexer.py index input/sample.docx dictionaries/technology/powershell.json output/sample_indexed.docx
 ```
 
-The source document is not modified. The output document contains XE fields. To create the visible index in Microsoft Word, open the output document and choose:
+The command automatically adds:
+
+- XE fields for matched entries.
+- An `Index` heading.
+- A Word `INDEX` field on a new page.
+
+Open the output document in Word and press:
 
 ```text
-References → Insert Index → OK
+Ctrl+A → F9
 ```
+
+Word will populate the visible index. To create only XE fields without appending the INDEX field, use:
+
+```powershell
+python book_indexer.py index input/sample.docx dictionaries/technology/powershell.json output/sample_indexed.docx --no-index-field
+```
+
+The source document is never modified.
 
 ## Dictionary format
 

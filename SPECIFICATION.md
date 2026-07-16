@@ -2,9 +2,9 @@
 
 ## Purpose
 
-WordIndexer creates Microsoft Word indexes by inserting native XE (Index Entry) fields into `.docx` documents. The source document is preserved and a new indexed document is written to the requested output path.
+WordIndexer creates Microsoft Word indexes by inserting native XE (Index Entry) fields into `.docx` documents. It also appends a visible Word INDEX field so Microsoft Word can populate the index after a field update. The source document is preserved and a new indexed document is written to the requested output path.
 
-## Version 0.1.0 objectives
+## Version 0.2.0 objectives
 
 - Load a DOCX document.
 - Load a JSON dictionary.
@@ -14,6 +14,8 @@ WordIndexer creates Microsoft Word indexes by inserting native XE (Index Entry) 
 - Resolve overlapping matches.
 - Preserve visible text and run formatting.
 - Insert Word-compatible XE fields.
+- Append an `Index` heading and INDEX field by default.
+- Allow the INDEX field to be disabled with `--no-index-field`.
 - Save a new DOCX document.
 - Support inspection, analysis, and indexing through the CLI.
 
@@ -23,8 +25,8 @@ WordIndexer creates Microsoft Word indexes by inserting native XE (Index Entry) 
 
 ## Supported output
 
-- Microsoft Word `.docx` files containing XE fields.
-- The visible index is created in Word with **References → Insert Index**.
+- Microsoft Word `.docx` files containing XE fields and, by default, a Word INDEX field.
+- The INDEX field is populated in Word with `Ctrl+A`, followed by `F9`.
 
 ## Dictionary format
 
@@ -57,7 +59,7 @@ The detector tries, in order:
 
 ## Current exclusions
 
-Version 0.1.0 does not search:
+Version 0.2.0 does not search:
 
 - Table cells.
 - Headers or footers.
@@ -66,8 +68,9 @@ Version 0.1.0 does not search:
 
 ## Deferred features
 
-- Automatic visible INDEX-field insertion.
+- Table and additional Word-story traversal.
 - Nested subentries and cross references.
+- Dry-run and coverage reports.
 - Glossary generation.
 - Acronym generation.
 - Figure and table indexes.

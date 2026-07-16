@@ -3,4 +3,4 @@ from wordindexer.version import VERSION
 
 def test_version():
 
-    assert VERSION == "0.1.0"
+    assert VERSION == "0.2.0"

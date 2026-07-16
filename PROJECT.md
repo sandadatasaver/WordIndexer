@@ -11,9 +11,9 @@ WordIndexer is an open-source engine for creating professional Microsoft Word in
 
 ## Current release
 
-**Version 0.1.0 — First Usable Core**
+**Version 0.2.0 — Automatic Index Field**
 
-The core indexing workflow has been validated with automated tests, a torture document, and a real PowerShell manuscript.
+The core indexing workflow has been validated with automated tests, a torture document, and a real PowerShell manuscript. The command now adds a visible Word INDEX field and an `Index` heading automatically.
 
 ## Completed
 
@@ -28,11 +28,13 @@ The core indexing workflow has been validated with automated tests, a torture do
 - XE writer using the Word-generated instruction structure.
 - TOC/body boundary detection with first-chapter fallback.
 - End-to-end DOCX indexing and save/reopen tests.
+- Automatic Word INDEX field insertion.
+- Automatic `Index` heading insertion.
 - Validation in Microsoft Word with generated page-numbered indexes.
 
-## Version 0.1.0 scope
+## Version 0.2.0 scope
 
-The current release indexes normal body paragraphs and headings. It excludes content before the detected body boundary and preserves the original visible text and formatting.
+The current release indexes normal body paragraphs and headings. It excludes content before the detected body boundary and preserves the original visible text and formatting. It appends a Word INDEX field by default; `--no-index-field` disables that behavior.
 
 The following are deliberately deferred:
 
@@ -40,7 +42,7 @@ The following are deliberately deferred:
 - Headers and footers.
 - Footnotes and endnotes.
 - Text boxes and other embedded stories.
-- Automatic visible INDEX-field insertion.
+- Nested indexes and cross references.
 - Glossary and acronym generation.
 - AI-assisted suggestions.
 - GUI and packaging for end users.
@@ -57,12 +59,12 @@ The selected method is reported by the indexing command.
 
 ## Immediate next milestone
 
-Release hardening:
+Begin Version 2 planning and document traversal hardening:
 
-1. Keep the current paragraph-based scope explicit in documentation.
-2. Maintain the regression suite for the sample, torture, and real-book workflows.
-3. Publish the first stable core release.
-4. Add table and additional Word-story support only as a separately tested milestone.
+1. Decide how to support table cells and additional Word stories.
+2. Add a dry-run and coverage report.
+3. Add nested entries and cross references.
+4. Begin glossary and terminology workflows only after the indexing core remains stable.
 
 ## Repository branches
 
@@ -76,6 +78,6 @@ Release hardening:
 - Run the complete suite with `python -m pytest -q`.
 - Validate generated documents in Microsoft Word.
 - Never commit private manuscripts or generated output documents.
-- Keep Version 1 focused before adding Version 2 features.
+- Keep Version 2 work separate from the stable release.
 
 > Build tools that help people create knowledge.

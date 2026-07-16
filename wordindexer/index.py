@@ -9,6 +9,7 @@ from pathlib import Path
 
 from wordindexer.dictionary import DictionaryEntry
 from wordindexer.document import DocumentReader
+from wordindexer.index_field import IndexFieldWriter
 from wordindexer.models import Match
 from wordindexer.search import SearchEngine
 from wordindexer.toc import TOCDetector
@@ -28,6 +29,7 @@ class IndexResult:
     terms_not_found: int
     occurrences: int
     fields_inserted: int
+    index_field_inserted: bool
 
 
 class IndexEngine:
@@ -37,9 +39,13 @@ class IndexEngine:
         self,
         toc_detector: TOCDetector | None = None,
         xe_writer: XEWriter | None = None,
+        index_field_writer: IndexFieldWriter | None = None,
+        include_index_field: bool = True,
     ):
         self.toc_detector = toc_detector or TOCDetector()
         self.xe_writer = xe_writer or XEWriter()
+        self.index_field_writer = index_field_writer or IndexFieldWriter()
+        self.include_index_field = include_index_field
 
     @staticmethod
     def _position(match: Match) -> tuple[int, int, int]:
@@ -97,6 +103,12 @@ class IndexEngine:
             paragraph = reader.doc.paragraphs[match.paragraph_index]
             self.xe_writer.insert_match(paragraph, match)
 
+        index_field_inserted = False
+
+        if self.include_index_field:
+            self.index_field_writer.insert_index_field(reader.doc)
+            index_field_inserted = True
+
         destination.parent.mkdir(parents=True, exist_ok=True)
         reader.doc.save(destination)
 
@@ -116,4 +128,5 @@ class IndexEngine:
             terms_not_found=terms_not_found,
             occurrences=len(matches),
             fields_inserted=len(matches),
+            index_field_inserted=index_field_inserted,
         )

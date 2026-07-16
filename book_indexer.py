@@ -79,7 +79,9 @@ def cmd_index(args):
     loader = DictionaryLoader(args.dictionary)
     entries = loader.load_entries()
 
-    result = IndexEngine().index(
+    result = IndexEngine(
+        include_index_field=not args.no_index_field,
+    ).index(
         input_path=args.document,
         dictionary=entries,
         output_path=args.output,
@@ -95,6 +97,7 @@ def cmd_index(args):
     print(f"Terms missing : {result.terms_not_found}")
     print(f"Occurrences   : {result.occurrences}")
     print(f"XE fields    : {result.fields_inserted}")
+    print(f"INDEX field  : {result.index_field_inserted}")
     print(f"Output        : {result.output_path}")
     print()
 
@@ -144,6 +147,12 @@ def build_parser():
     index_parser.add_argument("dictionary")
 
     index_parser.add_argument("output")
+
+    index_parser.add_argument(
+        "--no-index-field",
+        action="store_true",
+        help="Do not append a visible Word INDEX field",
+    )
 
     index_parser.set_defaults(func=cmd_index)
 
