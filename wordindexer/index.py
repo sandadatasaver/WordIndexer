@@ -41,11 +41,13 @@ class IndexEngine:
         xe_writer: XEWriter | None = None,
         index_field_writer: IndexFieldWriter | None = None,
         include_index_field: bool = True,
+        include_tables: bool = False,
     ):
         self.toc_detector = toc_detector or TOCDetector()
         self.xe_writer = xe_writer or XEWriter()
         self.index_field_writer = index_field_writer or IndexFieldWriter()
         self.include_index_field = include_index_field
+        self.include_tables = include_tables
 
     @staticmethod
     def _position(match: Match) -> tuple[int, int, int]:
@@ -82,9 +84,9 @@ class IndexEngine:
         source = Path(input_path)
         destination = Path(output_path)
         reader = DocumentReader(source)
-        book = reader.load_book()
+        book = reader.load_book(include_tables=self.include_tables)
 
-        toc = self.toc_detector.detect(reader.doc)
+        toc = self.toc_detector.detect(reader.doc, book.paragraphs)
         book.paragraphs = [
             paragraph
             for paragraph in book.paragraphs
@@ -100,7 +102,7 @@ class IndexEngine:
         matches = list(book.matches)
 
         for match in sorted(matches, key=self._position, reverse=True):
-            paragraph = reader.doc.paragraphs[match.paragraph_index]
+            paragraph = book.paragraph_targets[match.paragraph_index]
             self.xe_writer.insert_match(paragraph, match)
 
         index_field_inserted = False

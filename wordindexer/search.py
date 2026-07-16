@@ -27,7 +27,11 @@ class SearchEngine:
     ):
         self.book = book
         self.document = document
-        self.scanner = RunScanner(document) if document is not None else None
+        self.scanner = (
+            RunScanner(document, book.paragraph_targets)
+            if document is not None
+            else None
+        )
         self.raw_match_count = 0
         self.resolved_match_count = 0
 

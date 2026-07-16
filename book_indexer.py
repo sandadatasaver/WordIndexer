@@ -46,7 +46,11 @@ def cmd_analyze(args):
 
     loader = DictionaryLoader(args.dictionary)
     entries = loader.load_entries()
-    report = ReportBuilder().build(args.document, entries)
+    report = ReportBuilder().build(
+        args.document,
+        entries,
+        include_tables=args.include_tables,
+    )
 
     print(report.render_console())
 
@@ -63,6 +67,7 @@ def cmd_index(args):
 
     result = IndexEngine(
         include_index_field=not args.no_index_field,
+        include_tables=args.include_tables,
     ).index(
         input_path=args.document,
         dictionary=entries,
@@ -122,6 +127,12 @@ def build_parser():
         help="Write the analysis report as JSON",
     )
 
+    analyze_parser.add_argument(
+        "--include-tables",
+        action="store_true",
+        help="Include table-cell paragraphs in analysis",
+    )
+
     analyze_parser.set_defaults(func=cmd_analyze)
 
     index_parser = sub.add_parser(
@@ -139,6 +150,12 @@ def build_parser():
         "--no-index-field",
         action="store_true",
         help="Do not append a visible Word INDEX field",
+    )
+
+    index_parser.add_argument(
+        "--include-tables",
+        action="store_true",
+        help="Include table-cell paragraphs in indexing",
     )
 
     index_parser.set_defaults(func=cmd_index)

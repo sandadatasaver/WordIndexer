@@ -97,12 +97,13 @@ class ReportBuilder:
         self,
         input_path: str | Path,
         dictionary: list[DictionaryEntry],
+        include_tables: bool = False,
     ) -> AnalysisReport:
         """Analyze a document and return its structured coverage report."""
         source = Path(input_path)
         reader = DocumentReader(source)
-        book = reader.load_book()
-        toc = TOCDetector().detect(reader.doc)
+        book = reader.load_book(include_tables=include_tables)
+        toc = TOCDetector().detect(reader.doc, book.paragraphs)
 
         book.paragraphs = [
             paragraph
