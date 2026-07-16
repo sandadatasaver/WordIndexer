@@ -1,14 +1,16 @@
-from wordindexer.models import IndexEntry
+from wordindexer.models import RunLocation
 
 
-def test_index_entry():
+def test_run_location():
 
-    item = IndexEntry(term="Copy-Item")
+    loc = RunLocation(
+        paragraph_index=1,
+        run_index=2,
+        start=5,
+        end=15,
+        matched_text="PowerShell",
+    )
 
-    assert item.term == "Copy-Item"
-
-    assert item.whole_word
-
-    assert item.first_only
-
-    assert item.enabled
+    assert loc.run_index == 2
+    assert loc.start == 5
+    assert loc.end == 15
