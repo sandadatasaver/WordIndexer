@@ -1,136 +1,81 @@
 # WordIndexer Project
 
-**Project Name:** WordIndexer
+**Project:** WordIndexer  
+**Owner:** Bishop David Sanda  
+**License:** MIT  
+**Python:** 3.12+
 
-**Repository:** WordIndexer
+## Vision
 
-**License:** MIT
+WordIndexer is an open-source engine for creating professional Microsoft Word indexes from customizable dictionaries. It begins with automatic XE-field insertion and is intended to grow into a broader document-intelligence platform for authors, researchers, educators, and publishers.
 
-**Project Owner:** Bishop David Sanda
+## Current release
 
----
+**Version 0.1.0 — First Usable Core**
 
-# Vision
+The core indexing workflow has been validated with automated tests, a torture document, and a real PowerShell manuscript.
 
-WordIndexer is an open-source Python application that automatically creates professional Microsoft Word indexes by inserting native Word XE (Index Entry) fields into `.docx` documents.
+## Completed
 
-The goal is to provide authors, publishers, researchers, students, churches, and technical writers with a free, powerful, and extensible indexing tool.
+- Configuration manager and logging foundation.
+- Command-line interface with `inspect`, `analyze`, and `index` commands.
+- DOCX document reader.
+- JSON dictionary loader with aliases and canonical terms.
+- Search engine that captures every occurrence.
+- Exact run-level scanning, including terms split across formatted runs.
+- Global overlap resolution.
+- Word-compatible generic XML field writer.
+- XE writer using the Word-generated instruction structure.
+- TOC/body boundary detection with first-chapter fallback.
+- End-to-end DOCX indexing and save/reopen tests.
+- Validation in Microsoft Word with generated page-numbered indexes.
 
-Unlike existing solutions, WordIndexer will use customizable JSON dictionaries, intelligent matching, alias support, and nested index entries to generate publication-quality indexes.
+## Version 0.1.0 scope
 
----
+The current release indexes normal body paragraphs and headings. It excludes content before the detected body boundary and preserves the original visible text and formatting.
 
-# Project Objectives
+The following are deliberately deferred:
 
-* Read Microsoft Word (.docx) documents.
-* Detect and skip the Table of Contents.
-* Load one or more indexing dictionaries.
-* Locate the first occurrence of each term.
-* Insert native Microsoft Word XE fields.
-* Generate a complete Word index.
-* Produce CSV, JSON, and log reports.
-* Support multiple subject dictionaries.
-* Support aliases, subentries, and cross references.
-* Provide both a command-line interface and, later, a graphical user interface.
+- Table-cell indexing.
+- Headers and footers.
+- Footnotes and endnotes.
+- Text boxes and other embedded stories.
+- Automatic visible INDEX-field insertion.
+- Glossary and acronym generation.
+- AI-assisted suggestions.
+- GUI and packaging for end users.
 
----
+## Current limitations
 
-# Current Status
+Some Word documents store their TOC as a field, image, or embedded structure that `python-docx` does not expose as ordinary paragraph text. WordIndexer therefore uses a detection cascade:
 
-## Phase
+1. Explicit `Table of Contents` or `Contents` heading.
+2. First `Heading 1` beginning with `Chapter 1`, when no explicit TOC text is available.
+3. Whole-document fallback when no safe boundary is found.
 
-Project Initialization
+The selected method is reported by the indexing command.
 
-## Current Milestone
+## Immediate next milestone
 
-Project structure completed.
+Release hardening:
 
-Next milestone is the implementation of the application core.
+1. Keep the current paragraph-based scope explicit in documentation.
+2. Maintain the regression suite for the sample, torture, and real-book workflows.
+3. Publish the first stable core release.
+4. Add table and additional Word-story support only as a separately tested milestone.
 
----
+## Repository branches
 
-# Completed
+- `main` — stable releases.
+- `develop` — active development.
 
-* Repository created.
-* MIT License added.
-* Initial project structure created.
-* Virtual environment configured.
-* Initial documentation created.
-* Dictionary folder created.
-* Example folder created.
-* Test folder created.
-* Output folder created.
+## Development rules
 
----
+- Work on one focused capability at a time.
+- Add or update tests with each capability.
+- Run the complete suite with `python -m pytest -q`.
+- Validate generated documents in Microsoft Word.
+- Never commit private manuscripts or generated output documents.
+- Keep Version 1 focused before adding Version 2 features.
 
-# Next Tasks
-
-1. Build the application core.
-2. Implement configuration management.
-3. Implement logging.
-4. Implement command-line interface.
-5. Implement dictionary loader.
-6. Implement document reader.
-7. Implement TOC detection.
-8. Implement search engine.
-9. Implement Word XML writer.
-10. Produce first working prototype.
-
----
-
-# Future Features
-
-* Automatic dictionary builder.
-* Dictionary editor.
-* Nested indexes.
-* "See" and "See also" references.
-* Automatic glossary generation.
-* Acronym generator.
-* Figure index generation.
-* Table index generation.
-* Plugin architecture.
-* GUI application.
-* Windows installer.
-* Cross-platform support.
-* PyPI package.
-
----
-
-# Coding Standards
-
-* Python 3.12+
-* Type hints throughout.
-* Dataclasses where appropriate.
-* Logging instead of print().
-* Unit tests for all major modules.
-* Modular architecture.
-* Clear documentation.
-* MIT License compatible dependencies only.
-
----
-
-# Repository Branches
-
-**main**
-
-Stable releases only.
-
-**develop**
-
-Active development.
-
----
-
-# Success Criteria
-
-Version 1.0 will be considered complete when a user can:
-
-1. Supply a Microsoft Word document.
-2. Supply one or more JSON dictionaries.
-3. Automatically insert Word XE fields.
-4. Update the index in Microsoft Word.
-5. Receive a professionally formatted back-of-book index.
-
----
-
-*"Build tools that help people create knowledge."*
+> Build tools that help people create knowledge.
