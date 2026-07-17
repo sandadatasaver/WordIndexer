@@ -1,29 +1,51 @@
 # Changelog
 
-## 0.1.0 — 2026-07-16
+## 0.5.0 — 2026-07-17
 
-First usable WordIndexer core release.
+Hierarchical entries and cross-reference release.
 
 ### Added
 
-- DOCX inspection and analysis commands.
-- JSON dictionary loading with aliases and canonical `index_as` terms.
-- Every-occurrence search.
-- Exact run-level scanning, including terms split across formatted runs.
-- Global overlap resolution.
-- Generic WordprocessingML complex-field writer.
-- Microsoft Word-compatible XE writer.
-- Explicit TOC detection and first-chapter fallback.
-- End-to-end indexing command that saves a new DOCX.
-- Regression tests for sample, torture, and real-book workflows.
+- `parent` and `subentry` dictionary metadata.
+- Hierarchical XE fields.
+- `See` references.
+- `See also` references.
+- One-time `See also` insertion per canonical entry.
+- Regression tests for dictionary metadata, hierarchy, and cross-reference XML.
 
 ### Validated
 
-- Generated documents open in Microsoft Word without repair warnings.
-- Word recognizes the XE fields and creates an index with page numbers.
-- The source document remains unchanged.
+- The complete regression suite passes with 45 tests.
+- Nested index entries display correctly in Microsoft Word.
+- `See` references display correctly in Microsoft Word.
+- `See also` references preserve normal page references.
 
-### Known limitations
+## 0.4.0 — 2026-07-16
 
-- Table cells, headers, footers, footnotes, endnotes, and text boxes are not searched in this release.
-- The visible INDEX field is added through Microsoft Word after generation.
+Optional table-cell indexing release.
+
+### Added
+
+- Ordered traversal of top-level body paragraphs and tables.
+- Table-cell paragraph metadata and exact targets.
+- `--include-tables` option for `analyze` and `index`.
+- Table-cell XE insertion with formatting preservation.
+- Body-boundary protection for tables before the manuscript body.
+
+## 0.3.0 — 2026-07-16
+
+Analysis and coverage reports release.
+
+- Dry-run analysis and JSON report export.
+- Coverage metrics for boundaries, missing terms, occurrences, and overlaps.
+
+## 0.2.0 — 2026-07-16
+
+Automatic visible INDEX field release.
+
+- Automatic `Index` heading and Word INDEX field.
+- `--no-index-field` option.
+
+## 0.1.0 — 2026-07-16
+
+First usable WordIndexer core release.

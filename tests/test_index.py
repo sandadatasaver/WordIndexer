@@ -35,6 +35,7 @@ def test_index_engine_saves_xe_fields_and_excludes_toc(tmp_path):
     assert result.terms_not_found == 0
     assert result.occurrences == 2
     assert result.fields_inserted == 2
+    assert result.index_field_inserted is True
 
     indexed = Document(output)
     assert indexed.paragraphs[4].text == (
@@ -54,6 +55,7 @@ def test_index_engine_saves_xe_fields_and_excludes_toc(tmp_path):
         ' XE "',
         "PowerShell",
         '" ',
+        " INDEX ",
     ]
 
     toc_instructions = indexed.paragraphs[2]._p.xpath(".//w:instrText")

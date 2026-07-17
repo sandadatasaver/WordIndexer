@@ -13,7 +13,7 @@ from wordindexer.dictionary import DictionaryLoader
 from wordindexer.document import DocumentReader
 from wordindexer.index import IndexEngine
 from wordindexer.logger import setup_logger
-from wordindexer.search import SearchEngine
+from wordindexer.reports import ReportBuilder
 from wordindexer.version import VERSION
 
 
@@ -44,34 +44,20 @@ def cmd_inspect(args):
 
 def cmd_analyze(args):
 
-    reader = DocumentReader(args.document)
-
-    book = reader.load_book()
-
     loader = DictionaryLoader(args.dictionary)
-
     entries = loader.load_entries()
+    report = ReportBuilder().build(
+        args.document,
+        entries,
+        include_tables=args.include_tables,
+    )
 
-    engine = SearchEngine(book, reader.doc)
+    print(report.render_console())
 
-    results = engine.search(entries)
-
-    print()
-    print("Search Results")
-    print("--------------")
-
-    total = 0
-
-    for term in sorted(results):
-
-        count = len(results[term])
-
-        total += count
-
-        print(f"{term:<35} {count}")
-
-    print()
-    print(f"Total Matches : {total}")
+    if args.json_output:
+        report_path = report.write_json(args.json_output)
+        print()
+        print(f"JSON report       : {report_path}")
 
 
 def cmd_index(args):
@@ -79,7 +65,10 @@ def cmd_index(args):
     loader = DictionaryLoader(args.dictionary)
     entries = loader.load_entries()
 
-    result = IndexEngine().index(
+    result = IndexEngine(
+        include_index_field=not args.no_index_field,
+        include_tables=args.include_tables,
+    ).index(
         input_path=args.document,
         dictionary=entries,
         output_path=args.output,
@@ -95,6 +84,7 @@ def cmd_index(args):
     print(f"Terms missing : {result.terms_not_found}")
     print(f"Occurrences   : {result.occurrences}")
     print(f"XE fields    : {result.fields_inserted}")
+    print(f"INDEX field  : {result.index_field_inserted}")
     print(f"Output        : {result.output_path}")
     print()
 
@@ -132,6 +122,17 @@ def build_parser():
 
     analyze_parser.add_argument("dictionary")
 
+    analyze_parser.add_argument(
+        "--json-output",
+        help="Write the analysis report as JSON",
+    )
+
+    analyze_parser.add_argument(
+        "--include-tables",
+        action="store_true",
+        help="Include table-cell paragraphs in analysis",
+    )
+
     analyze_parser.set_defaults(func=cmd_analyze)
 
     index_parser = sub.add_parser(
@@ -144,6 +145,18 @@ def build_parser():
     index_parser.add_argument("dictionary")
 
     index_parser.add_argument("output")
+
+    index_parser.add_argument(
+        "--no-index-field",
+        action="store_true",
+        help="Do not append a visible Word INDEX field",
+    )
+
+    index_parser.add_argument(
+        "--include-tables",
+        action="store_true",
+        help="Include table-cell paragraphs in indexing",
+    )
 
     index_parser.set_defaults(func=cmd_index)
 

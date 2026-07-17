@@ -19,8 +19,13 @@ from wordindexer.models import RunLocation
 class RunScanner:
     """Locate term occurrences in the runs of a Word document."""
 
-    def __init__(self, document: Document):
+    def __init__(
+        self,
+        document: Document,
+        paragraph_targets: dict[int, object] | None = None,
+    ):
         self.document = document
+        self.paragraph_targets = paragraph_targets or {}
 
     @staticmethod
     def _pattern(term: str) -> re.Pattern[str]:
@@ -40,7 +45,10 @@ class RunScanner:
         split across differently formatted runs therefore remains grouped as
         one occurrence while retaining exact per-run offsets.
         """
-        paragraph = self.document.paragraphs[paragraph_index]
+        paragraph = self.paragraph_targets.get(paragraph_index)
+
+        if paragraph is None:
+            paragraph = self.document.paragraphs[paragraph_index]
 
         run_offsets: list[tuple[int, int, str]] = []
         parts: list[str] = []
@@ -101,7 +109,7 @@ class RunScanner:
 
         This compatibility method returns a flat list. New code that needs to
         distinguish repeated occurrences or terms split across runs should use
-        ``locate_occurrences``.
+        :meth:`locate_occurrences`.
         """
         return [
             location

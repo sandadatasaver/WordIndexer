@@ -25,19 +25,33 @@ class XMLWriter:
         field_code: str,
         instruction_parts: list[str] | None = None,
     ) -> None:
-        """
-        Insert a complex field at an exact position in a run.
+        """Insert one complex field at an exact position in a run."""
+        self.insert_fields(
+            paragraph=paragraph,
+            run_index=run_index,
+            offset=offset,
+            fields=[(field_code, instruction_parts)],
+        )
 
-        The original visible text is retained. If the insertion point is in
-        the middle of a run, that run is split into before and after runs,
-        preserving its run properties on both sides.
-
-        ``instruction_parts`` can be used when a producer requires the field
-        instruction to be represented by multiple ``w:instrText`` elements,
-        as Microsoft Word does for XE fields.
+    def insert_fields(
+        self,
+        paragraph: Paragraph,
+        run_index: int,
+        offset: int,
+        fields: list[tuple[str, list[str] | None]],
+    ) -> None:
         """
-        if not field_code or not field_code.strip():
-            raise ValueError("field_code must not be empty")
+        Insert multiple adjacent complex fields at an exact run position.
+
+        This is used for a normal XE field followed by a one-time ``See also``
+        field at the same occurrence.
+        """
+        if not fields:
+            raise ValueError("At least one field is required")
+
+        for field_code, _ in fields:
+            if not field_code or not field_code.strip():
+                raise ValueError("field_code must not be empty")
 
         runs = paragraph.runs
 
@@ -58,7 +72,6 @@ class XMLWriter:
 
         before_text = source_text[:offset]
         after_text = source_text[offset:]
-
         replacement: list[object] = []
 
         if before_text:
@@ -66,12 +79,13 @@ class XMLWriter:
                 self._copy_run_with_text(source_element, before_text)
             )
 
-        replacement.extend(
-            self._field_runs(
-                field_code=field_code.strip(),
-                instruction_parts=instruction_parts,
+        for field_code, instruction_parts in fields:
+            replacement.extend(
+                self._field_runs(
+                    field_code=field_code.strip(),
+                    instruction_parts=instruction_parts,
+                )
             )
-        )
 
         if after_text:
             replacement.append(

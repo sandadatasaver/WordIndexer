@@ -2,18 +2,26 @@
 
 ## Purpose
 
-WordIndexer creates Microsoft Word indexes by inserting native XE (Index Entry) fields into `.docx` documents. The source document is preserved and a new indexed document is written to the requested output path.
+WordIndexer creates Microsoft Word indexes by inserting native XE fields into `.docx` documents. It also appends a visible Word INDEX field so Microsoft Word can populate the index after a field update. The source document is preserved and a new indexed document is written to the requested output path.
 
-## Version 0.1.0 objectives
+## Version 0.5.0 objectives
 
 - Load a DOCX document.
 - Load a JSON dictionary.
 - Search every occurrence of enabled terms and aliases.
 - Map aliases to canonical `index_as` values.
+- Support `parent` and `subentry` hierarchy metadata.
+- Support `See` and `See also` references.
 - Exclude content before the detected manuscript body.
 - Resolve overlapping matches.
 - Preserve visible text and run formatting.
 - Insert Word-compatible XE fields.
+- Append an `Index` heading and INDEX field by default.
+- Allow the INDEX field to be disabled with `--no-index-field`.
+- Produce read-only console coverage reports.
+- Export analysis reports as JSON when requested.
+- Optionally traverse table-cell paragraphs in document order.
+- Insert XE fields inside table-cell paragraphs when `--include-tables` is enabled.
 - Save a new DOCX document.
 - Support inspection, analysis, and indexing through the CLI.
 
@@ -23,18 +31,20 @@ WordIndexer creates Microsoft Word indexes by inserting native XE (Index Entry) 
 
 ## Supported output
 
-- Microsoft Word `.docx` files containing XE fields.
-- The visible index is created in Word with **References → Insert Index**.
+- Microsoft Word `.docx` files containing XE fields and, by default, a Word INDEX field.
+- The INDEX field is populated in Word with `Ctrl+A`, followed by `F9`.
 
 ## Dictionary format
 
-A dictionary contains:
+Entries may contain:
 
-- `metadata` — name, version, author, and optional description.
-- `entries` — searchable entries.
 - `term` — primary search term.
 - `aliases` — alternative forms.
 - `index_as` — canonical text written into the XE field.
+- `parent` — top-level hierarchy component.
+- `subentry` — second-level hierarchy component.
+- `see` — redirect to a preferred entry.
+- `see_also` — related entries.
 - `category` — optional classification.
 - `enabled` — whether the entry is active.
 
@@ -57,17 +67,17 @@ The detector tries, in order:
 
 ## Current exclusions
 
-Version 0.1.0 does not search:
+Version 0.5.0 does not search:
 
-- Table cells.
-- Headers or footers.
+- Headers and footers.
 - Footnotes or endnotes.
 - Text boxes and other embedded Word stories.
 
+Table cells are excluded by default and included only with `--include-tables`.
+
 ## Deferred features
 
-- Automatic visible INDEX-field insertion.
-- Nested subentries and cross references.
+- Additional Word-story traversal.
 - Glossary generation.
 - Acronym generation.
 - Figure and table indexes.

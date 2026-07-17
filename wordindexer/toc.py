@@ -54,15 +54,16 @@ class TOCDetector:
 
     @classmethod
     def _is_first_chapter_heading(cls, paragraph) -> bool:
-        style_name = paragraph.style.name if paragraph.style else ""
+        style = paragraph.style
+        style_name = style.name if hasattr(style, "name") else style or ""
         return (
             style_name.startswith("Heading 1")
             and bool(cls._first_chapter.match(paragraph.text.strip()))
         )
 
-    def detect(self, document: Document) -> TOCResult:
+    def detect(self, document: Document, paragraphs=None) -> TOCResult:
         """Return the first paragraph that should be indexed."""
-        paragraphs = document.paragraphs
+        paragraphs = list(paragraphs or document.paragraphs)
         toc_index: int | None = None
 
         for index, paragraph in enumerate(paragraphs):
@@ -71,6 +72,25 @@ class TOCDetector:
                 break
 
         if toc_index is not None:
+            # Prefer the first post-TOC heading. This avoids treating table
+            # cells containing TOC entries as the manuscript body.
+            for index in range(toc_index + 1, len(paragraphs)):
+                paragraph = paragraphs[index]
+                style = paragraph.style
+                style_name = (
+                    style.name
+                    if hasattr(style, "name")
+                    else style or ""
+                )
+
+                if style_name.startswith("Heading 1"):
+                    return TOCResult(
+                        found=True,
+                        toc_start=toc_index,
+                        body_start=index,
+                        method="title",
+                    )
+
             for index in range(toc_index + 1, len(paragraphs)):
                 paragraph = paragraphs[index]
                 text = paragraph.text.strip()
@@ -78,15 +98,12 @@ class TOCDetector:
                 if not text or self._looks_like_toc_entry(text):
                     continue
 
-                style_name = paragraph.style.name if paragraph.style else ""
-
-                if style_name.startswith("Heading") or text:
-                    return TOCResult(
-                        found=True,
-                        toc_start=toc_index,
-                        body_start=index,
-                        method="title",
-                    )
+                return TOCResult(
+                    found=True,
+                    toc_start=toc_index,
+                    body_start=index,
+                    method="title",
+                )
 
             return TOCResult(
                 found=True,

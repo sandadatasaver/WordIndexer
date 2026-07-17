@@ -9,6 +9,7 @@ from pathlib import Path
 
 from wordindexer.dictionary import DictionaryEntry
 from wordindexer.document import DocumentReader
+from wordindexer.index_field import IndexFieldWriter
 from wordindexer.models import Match
 from wordindexer.search import SearchEngine
 from wordindexer.toc import TOCDetector
@@ -28,6 +29,7 @@ class IndexResult:
     terms_not_found: int
     occurrences: int
     fields_inserted: int
+    index_field_inserted: bool
 
 
 class IndexEngine:
@@ -37,9 +39,15 @@ class IndexEngine:
         self,
         toc_detector: TOCDetector | None = None,
         xe_writer: XEWriter | None = None,
+        index_field_writer: IndexFieldWriter | None = None,
+        include_index_field: bool = True,
+        include_tables: bool = False,
     ):
         self.toc_detector = toc_detector or TOCDetector()
         self.xe_writer = xe_writer or XEWriter()
+        self.index_field_writer = index_field_writer or IndexFieldWriter()
+        self.include_index_field = include_index_field
+        self.include_tables = include_tables
 
     @staticmethod
     def _position(match: Match) -> tuple[int, int, int]:
@@ -76,9 +84,9 @@ class IndexEngine:
         source = Path(input_path)
         destination = Path(output_path)
         reader = DocumentReader(source)
-        book = reader.load_book()
+        book = reader.load_book(include_tables=self.include_tables)
 
-        toc = self.toc_detector.detect(reader.doc)
+        toc = self.toc_detector.detect(reader.doc, book.paragraphs)
         book.paragraphs = [
             paragraph
             for paragraph in book.paragraphs
@@ -92,10 +100,34 @@ class IndexEngine:
 
         results = SearchEngine(book, reader.doc).search(dictionary)
         matches = list(book.matches)
+        see_also_match_ids: set[int] = set()
+        seen_see_also_terms: set[str] = set()
+
+        for match in sorted(matches, key=self._position):
+            entry = match.dictionary_entry
+
+            if entry is None or not entry.see_also:
+                continue
+
+            canonical = entry.index_as or entry.term
+
+            if canonical not in seen_see_also_terms:
+                seen_see_also_terms.add(canonical)
+                see_also_match_ids.add(id(match))
 
         for match in sorted(matches, key=self._position, reverse=True):
-            paragraph = reader.doc.paragraphs[match.paragraph_index]
-            self.xe_writer.insert_match(paragraph, match)
+            paragraph = book.paragraph_targets[match.paragraph_index]
+            self.xe_writer.insert_match(
+                paragraph,
+                match,
+                include_see_also=id(match) in see_also_match_ids,
+            )
+
+        index_field_inserted = False
+
+        if self.include_index_field:
+            self.index_field_writer.insert_index_field(reader.doc)
+            index_field_inserted = True
 
         destination.parent.mkdir(parents=True, exist_ok=True)
         reader.doc.save(destination)
@@ -116,4 +148,5 @@ class IndexEngine:
             terms_not_found=terms_not_found,
             occurrences=len(matches),
             fields_inserted=len(matches),
+            index_field_inserted=index_field_inserted,
         )
