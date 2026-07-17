@@ -11,6 +11,7 @@ import argparse
 from wordindexer.config import ConfigManager
 from wordindexer.dictionary import DictionaryLoader
 from wordindexer.document import DocumentReader
+from wordindexer.glossary import GlossaryBuilder
 from wordindexer.index import IndexEngine
 from wordindexer.logger import setup_logger
 from wordindexer.reports import ReportBuilder
@@ -58,6 +59,25 @@ def cmd_analyze(args):
         report_path = report.write_json(args.json_output)
         print()
         print(f"JSON report       : {report_path}")
+
+
+def cmd_glossary(args):
+
+    loader = DictionaryLoader(args.dictionary)
+    entries = loader.load_entries()
+    report = GlossaryBuilder().build(
+        args.document,
+        entries,
+        include_tables=args.include_tables,
+    )
+
+    json_path = report.write_json(args.output)
+    print(f"Glossary entries : {len(report.entries)}")
+    print(f"JSON report      : {json_path}")
+
+    if args.csv_output:
+        csv_path = report.write_csv(args.csv_output)
+        print(f"CSV report       : {csv_path}")
 
 
 def cmd_index(args):
@@ -134,6 +154,25 @@ def build_parser():
     )
 
     analyze_parser.set_defaults(func=cmd_analyze)
+
+    glossary_parser = sub.add_parser(
+        "glossary",
+        help="Generate a glossary report",
+    )
+
+    glossary_parser.add_argument("document")
+    glossary_parser.add_argument("dictionary")
+    glossary_parser.add_argument("output")
+    glossary_parser.add_argument(
+        "--csv-output",
+        help="Also write the glossary as CSV",
+    )
+    glossary_parser.add_argument(
+        "--include-tables",
+        action="store_true",
+        help="Include table-cell paragraphs in glossary analysis",
+    )
+    glossary_parser.set_defaults(func=cmd_glossary)
 
     index_parser = sub.add_parser(
         "index",

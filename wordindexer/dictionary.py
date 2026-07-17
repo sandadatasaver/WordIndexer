@@ -66,6 +66,12 @@ class DictionaryLoader:
                     subentry=item.get("subentry"),
                     see=item.get("see"),
                     see_also=see_also,
+                    definition=item.get("definition"),
+                    include_in_glossary=item.get(
+                        "include_in_glossary",
+                        True,
+                    ),
+                    source=item.get("source"),
                 )
             )
 

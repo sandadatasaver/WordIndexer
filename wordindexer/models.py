@@ -40,6 +40,9 @@ class DictionaryEntry:
     subentry: Optional[str] = None
     see: Optional[str] = None
     see_also: List[str] = field(default_factory=list)
+    definition: Optional[str] = None
+    include_in_glossary: bool = True
+    source: Optional[str] = None
 
 
 @dataclass(slots=True)
