@@ -11,6 +11,7 @@ import argparse
 from wordindexer.config import ConfigManager
 from wordindexer.dictionary import DictionaryLoader
 from wordindexer.document import DocumentReader
+from wordindexer.discovery import TermDiscovery
 from wordindexer.glossary import GlossaryBuilder
 from wordindexer.index import IndexEngine
 from wordindexer.logger import setup_logger
@@ -59,6 +60,27 @@ def cmd_analyze(args):
         report_path = report.write_json(args.json_output)
         print()
         print(f"JSON report       : {report_path}")
+
+
+def cmd_discover(args):
+
+    entries = []
+
+    if args.dictionary:
+        loader = DictionaryLoader(args.dictionary)
+        entries = loader.load_entries()
+
+    report = TermDiscovery(
+        minimum_occurrences=args.minimum_occurrences,
+    ).discover(
+        args.document,
+        entries,
+        include_tables=args.include_tables,
+    )
+
+    output = report.write_json(args.output)
+    print(f"Candidates       : {len(report.candidates)}")
+    print(f"JSON report      : {output}")
 
 
 def cmd_glossary(args):
@@ -154,6 +176,29 @@ def build_parser():
     )
 
     analyze_parser.set_defaults(func=cmd_analyze)
+
+    discover_parser = sub.add_parser(
+        "discover",
+        help="Discover candidate terms for review",
+    )
+    discover_parser.add_argument("document")
+    discover_parser.add_argument("output")
+    discover_parser.add_argument(
+        "--dictionary",
+        help="Existing dictionary whose terms should be excluded",
+    )
+    discover_parser.add_argument(
+        "--minimum-occurrences",
+        type=int,
+        default=2,
+        help="Minimum occurrences required for a candidate",
+    )
+    discover_parser.add_argument(
+        "--include-tables",
+        action="store_true",
+        help="Include table-cell paragraphs",
+    )
+    discover_parser.set_defaults(func=cmd_discover)
 
     glossary_parser = sub.add_parser(
         "glossary",
