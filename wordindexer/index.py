@@ -100,10 +100,28 @@ class IndexEngine:
 
         results = SearchEngine(book, reader.doc).search(dictionary)
         matches = list(book.matches)
+        see_also_match_ids: set[int] = set()
+        seen_see_also_terms: set[str] = set()
+
+        for match in sorted(matches, key=self._position):
+            entry = match.dictionary_entry
+
+            if entry is None or not entry.see_also:
+                continue
+
+            canonical = entry.index_as or entry.term
+
+            if canonical not in seen_see_also_terms:
+                seen_see_also_terms.add(canonical)
+                see_also_match_ids.add(id(match))
 
         for match in sorted(matches, key=self._position, reverse=True):
             paragraph = book.paragraph_targets[match.paragraph_index]
-            self.xe_writer.insert_match(paragraph, match)
+            self.xe_writer.insert_match(
+                paragraph,
+                match,
+                include_see_also=id(match) in see_also_match_ids,
+            )
 
         index_field_inserted = False
 

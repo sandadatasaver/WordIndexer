@@ -22,12 +22,9 @@ class DictionaryInfo:
 
 
 class DictionaryLoader:
-    """
-    Loads a WordIndexer dictionary.
-    """
+    """Load WordIndexer JSON dictionaries."""
 
     def __init__(self, filename: str | Path):
-
         self.path = Path(filename)
 
         if not self.path.exists():
@@ -37,10 +34,7 @@ class DictionaryLoader:
             self.data = json.load(f)
 
     def info(self) -> DictionaryInfo:
-        """
-        Return dictionary metadata.
-        """
-
+        """Return dictionary metadata."""
         metadata = self.data.get("metadata", {})
         entries = self.data.get("entries", [])
 
@@ -52,13 +46,14 @@ class DictionaryLoader:
         )
 
     def load_entries(self) -> list[DictionaryEntry]:
-        """
-        Load all dictionary entries.
-        """
-
+        """Load all dictionary entries, including reference metadata."""
         entries: list[DictionaryEntry] = []
 
         for item in self.data.get("entries", []):
+            see_also = item.get("see_also", [])
+
+            if isinstance(see_also, str):
+                see_also = [see_also]
 
             entries.append(
                 DictionaryEntry(
@@ -67,6 +62,10 @@ class DictionaryLoader:
                     category=item.get("category", ""),
                     enabled=item.get("enabled", True),
                     index_as=item.get("index_as", item.get("term", "")),
+                    parent=item.get("parent"),
+                    subentry=item.get("subentry"),
+                    see=item.get("see"),
+                    see_also=see_also,
                 )
             )
 

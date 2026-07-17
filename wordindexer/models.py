@@ -36,6 +36,10 @@ class DictionaryEntry:
     category: str = ""
     enabled: bool = True
     index_as: str = ""
+    parent: Optional[str] = None
+    subentry: Optional[str] = None
+    see: Optional[str] = None
+    see_also: List[str] = field(default_factory=list)
 
 
 @dataclass(slots=True)
@@ -62,6 +66,7 @@ class Match:
     page: Optional[int] = None
     section: int = 0
     heading: str = ""
+    dictionary_entry: Optional[DictionaryEntry] = None
 
     locations: List[RunLocation] = field(default_factory=list)
 

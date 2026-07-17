@@ -161,6 +161,27 @@ def test_search_attaches_exact_run_locations():
     assert match.locations[1].matched_text == "Shell"
 
 
+def test_search_preserves_dictionary_entry_metadata():
+    book = Book()
+    book.paragraphs.append(
+        Paragraph(
+            index=0,
+            text="PowerShell uses Get-ChildItem.",
+        )
+    )
+
+    entry = DictionaryEntry(
+        term="Get-ChildItem",
+        index_as="Get-ChildItem",
+        parent="PowerShell",
+        subentry="Cmdlets",
+    )
+
+    results = SearchEngine(book).search([entry])
+
+    assert results["Get-ChildItem"][0].dictionary_entry is entry
+
+
 def test_search_resolves_overlapping_terms_globally():
     document = Document()
     paragraph = document.add_paragraph("Windows PowerShell 7 is useful.")

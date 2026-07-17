@@ -138,6 +138,7 @@ class SearchEngine:
                                         paragraph.index,
                                         "",
                                     ),
+                                    dictionary_entry=entry,
                                     locations=locations,
                                 )
                             )
@@ -168,6 +169,7 @@ class SearchEngine:
                                         paragraph.index,
                                         "",
                                     ),
+                                    dictionary_entry=entry,
                                 )
                             )
 
