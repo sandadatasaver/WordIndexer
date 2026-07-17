@@ -4,7 +4,7 @@ WordIndexer is an open-source Python tool that inserts native Microsoft Word XE 
 
 ## Current release
 
-**Version:** 0.3.0 — Analysis and Coverage Reports
+**Version:** 0.4.0 — Optional Table-Cell Indexing
 
 The current release has been tested against:
 
@@ -103,6 +103,14 @@ python book_indexer.py index input/sample.docx dictionaries/technology/powershel
 ```
 
 The source document is never modified.
+
+To include table-cell content explicitly:
+
+```powershell
+python book_indexer.py index input/sample.docx dictionaries/technology/powershell.json output/sample_with_tables.docx --include-tables
+```
+
+The default remains paragraph-only indexing.
 
 ## Dictionary format
 

@@ -11,7 +11,7 @@ WordIndexer is an open-source engine for creating professional Microsoft Word in
 
 ## Current release
 
-**Version 0.3.0 — Analysis and Coverage Reports**
+**Version 0.4.0 — Optional Table-Cell Indexing**
 
 The core indexing workflow has been validated with automated tests, a torture document, and a real PowerShell manuscript. The command now adds a visible Word INDEX field and an `Index` heading automatically.
 
@@ -57,18 +57,18 @@ Some Word documents store their TOC as a field, image, or embedded structure tha
 
 The selected method is reported by the indexing command.
 
-## Active development milestone
+## Current capabilities
 
-Dry-run analysis and coverage reports are now implemented on `develop`. They report body boundaries, ignored paragraphs, terms found and missing, total occurrences, overlaps resolved, and optional JSON output without modifying the source document.
+Dry-run analysis, JSON coverage reports, and optional table-cell indexing are implemented. Reports include body boundaries, ignored paragraphs, terms found and missing, total occurrences, overlaps resolved, and per-term counts without modifying the source document.
 
 Generated report files are ignored under `output/`.
 
 ## Immediate next milestone
 
-Begin Version 2 planning and document traversal hardening:
+Begin additional Word-story support and Version 2 indexing features:
 
-1. Decide how to support table cells and additional Word stories.
-2. Add a dry-run and coverage report.
+1. Add headers and footers only if the indexing scope requires them.
+2. Add footnotes, endnotes, and text boxes through separate tested traversals.
 3. Add nested entries and cross references.
 4. Begin glossary and terminology workflows only after the indexing core remains stable.
 

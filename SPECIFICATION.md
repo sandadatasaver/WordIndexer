@@ -18,6 +18,8 @@ WordIndexer creates Microsoft Word indexes by inserting native XE (Index Entry) 
 - Allow the INDEX field to be disabled with `--no-index-field`.
 - Produce read-only console coverage reports.
 - Export analysis reports as JSON when requested.
+- Optionally traverse table-cell paragraphs in document order.
+- Insert XE fields inside table-cell paragraphs when `--include-tables` is enabled.
 - Save a new DOCX document.
 - Support inspection, analysis, and indexing through the CLI.
 - Produce read-only console coverage reports.
@@ -72,9 +74,9 @@ Version 0.2.0 does not search:
 
 ## Deferred features
 
-- Table and additional Word-story traversal.
+- Headers, footers, and additional Word-story traversal.
 - Nested subentries and cross references.
-- Dry-run and coverage reports.
+- Further report formats and review workflows.
 - Glossary generation.
 - Acronym generation.
 - Figure and table indexes.
