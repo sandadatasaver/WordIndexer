@@ -2,14 +2,16 @@
 
 ## Purpose
 
-WordIndexer creates Microsoft Word indexes by inserting native XE (Index Entry) fields into `.docx` documents. It also appends a visible Word INDEX field so Microsoft Word can populate the index after a field update. The source document is preserved and a new indexed document is written to the requested output path.
+WordIndexer creates Microsoft Word indexes by inserting native XE fields into `.docx` documents. It also appends a visible Word INDEX field so Microsoft Word can populate the index after a field update. The source document is preserved and a new indexed document is written to the requested output path.
 
-## Version 0.2.0 objectives
+## Version 0.5.0 objectives
 
 - Load a DOCX document.
 - Load a JSON dictionary.
 - Search every occurrence of enabled terms and aliases.
 - Map aliases to canonical `index_as` values.
+- Support `parent` and `subentry` hierarchy metadata.
+- Support `See` and `See also` references.
 - Exclude content before the detected manuscript body.
 - Resolve overlapping matches.
 - Preserve visible text and run formatting.
@@ -22,8 +24,6 @@ WordIndexer creates Microsoft Word indexes by inserting native XE (Index Entry) 
 - Insert XE fields inside table-cell paragraphs when `--include-tables` is enabled.
 - Save a new DOCX document.
 - Support inspection, analysis, and indexing through the CLI.
-- Produce read-only console coverage reports.
-- Export analysis reports as JSON when requested.
 
 ## Supported input
 
@@ -36,13 +36,15 @@ WordIndexer creates Microsoft Word indexes by inserting native XE (Index Entry) 
 
 ## Dictionary format
 
-A dictionary contains:
+Entries may contain:
 
-- `metadata` — name, version, author, and optional description.
-- `entries` — searchable entries.
 - `term` — primary search term.
 - `aliases` — alternative forms.
 - `index_as` — canonical text written into the XE field.
+- `parent` — top-level hierarchy component.
+- `subentry` — second-level hierarchy component.
+- `see` — redirect to a preferred entry.
+- `see_also` — related entries.
 - `category` — optional classification.
 - `enabled` — whether the entry is active.
 
@@ -65,18 +67,17 @@ The detector tries, in order:
 
 ## Current exclusions
 
-Version 0.2.0 does not search:
+Version 0.5.0 does not search:
 
-- Table cells.
-- Headers or footers.
+- Headers and footers.
 - Footnotes or endnotes.
 - Text boxes and other embedded Word stories.
 
+Table cells are excluded by default and included only with `--include-tables`.
+
 ## Deferred features
 
-- Headers, footers, and additional Word-story traversal.
-- Nested subentries and cross references.
-- Further report formats and review workflows.
+- Additional Word-story traversal.
 - Glossary generation.
 - Acronym generation.
 - Figure and table indexes.

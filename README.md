@@ -4,7 +4,7 @@ WordIndexer is an open-source Python tool that inserts native Microsoft Word XE 
 
 ## Current release
 
-**Version:** 0.4.0 — Optional Table-Cell Indexing
+**Version:** 0.5.0 — Hierarchical Entries and Cross-References
 
 The current release has been tested against:
 
@@ -18,27 +18,27 @@ The current release has been tested against:
 - Loads JSON dictionaries with terms, aliases, and canonical index names.
 - Finds every occurrence of enabled terms.
 - Indexes aliases under one canonical term using `index_as`.
+- Supports parent entries, subentries, `See`, and `See also` references.
 - Resolves overlapping matches by preferring the most specific match.
 - Preserves visible text and run formatting.
 - Inserts Word-compatible XE fields.
 - Appends a real Word `INDEX` field automatically.
 - Adds an `Index` heading before the generated index field.
 - Excludes front matter using an explicit TOC boundary or first-chapter fallback.
+- Optionally searches table-cell paragraphs with `--include-tables`.
+- Produces dry-run coverage reports and JSON reports.
 - Saves a new indexed document without modifying the source document.
 - Provides a command-line interface.
-- Produces dry-run coverage reports without modifying the manuscript.
-- Exports analysis reports as JSON.
 
 ## Current limitations
 
-Version 0.2.0 searches normal body paragraphs and headings. It does not yet index text inside:
+Version 0.5.0 searches normal body paragraphs and headings. Table-cell indexing is available with `--include-tables`. It does not yet index text inside:
 
-- Table cells.
 - Headers and footers.
 - Footnotes and endnotes.
 - Text boxes and other embedded Word stories.
 
-These are planned for later hardening and Version 2 work. The current scope is intentionally limited so that the core engine remains predictable and testable.
+The current scope is intentionally limited so that the core engine remains predictable and testable.
 
 ## Installation
 
@@ -72,45 +72,18 @@ python book_indexer.py analyze input/sample.docx dictionaries/technology/powersh
 ### Create an indexed document
 
 ```powershell
-python book_indexer.py index `
-    input/sample.docx `
-    dictionaries/technology/powershell.json `
-    output/sample_indexed.docx
-```
-
-For a single-line command:
-
-```powershell
 python book_indexer.py index input/sample.docx dictionaries/technology/powershell.json output/sample_indexed.docx
 ```
 
-The command automatically adds:
+The command automatically adds XE fields, an `Index` heading, and a Word `INDEX` field. Open the output in Word and press `Ctrl+A`, then `F9`.
 
-- XE fields for matched entries.
-- An `Index` heading.
-- A Word `INDEX` field on a new page.
-
-Open the output document in Word and press:
-
-```text
-Ctrl+A → F9
-```
-
-Word will populate the visible index. To create only XE fields without appending the INDEX field, use:
-
-```powershell
-python book_indexer.py index input/sample.docx dictionaries/technology/powershell.json output/sample_indexed.docx --no-index-field
-```
-
-The source document is never modified.
-
-To include table-cell content explicitly:
+Use `--include-tables` to include table-cell paragraphs:
 
 ```powershell
 python book_indexer.py index input/sample.docx dictionaries/technology/powershell.json output/sample_with_tables.docx --include-tables
 ```
 
-The default remains paragraph-only indexing.
+Use `--no-index-field` when only XE fields are required.
 
 ## Dictionary format
 
@@ -126,40 +99,36 @@ The default remains paragraph-only indexing.
       "term": "Get-ChildItem",
       "aliases": ["gci", "dir", "ls"],
       "index_as": "Get-ChildItem",
+      "parent": "PowerShell",
+      "subentry": "Cmdlets",
       "category": "Cmdlet",
+      "enabled": true
+    },
+    {
+      "term": "pwsh",
+      "index_as": "pwsh",
+      "see": "PowerShell",
+      "enabled": true
+    },
+    {
+      "term": "PowerShell",
+      "index_as": "PowerShell",
+      "see_also": ["Windows PowerShell", "PowerShell Core"],
       "enabled": true
     }
   ]
 }
 ```
 
-## Development
+A `parent` and `subentry` create a hierarchy such as `PowerShell:Cmdlets:Get-ChildItem`. A `see` entry redirects readers to a preferred entry. A `see_also` entry adds a related-topic reference while preserving the entry's normal page references.
 
-Run the test suite from the project root:
+## Development
 
 ```powershell
 python -m pytest -q
 ```
 
 The project follows a staged workflow: write a focused test, implement one capability, run the full suite, validate a generated DOCX in Word, and commit only after the result is confirmed.
-
-## Project structure
-
-```text
-WordIndexer/
-├── book_indexer.py
-├── config.json
-├── requirements.txt
-├── requirements-dev.txt
-├── dictionaries/
-├── docs/
-├── examples/
-├── input/
-├── output/
-├── test_documents/
-├── tests/
-└── wordindexer/
-```
 
 ## License
 
