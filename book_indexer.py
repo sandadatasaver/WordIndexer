@@ -10,6 +10,7 @@ import argparse
 
 from wordindexer.config import ConfigManager
 from wordindexer.dictionary import DictionaryLoader
+from wordindexer.dictionary_builder import DictionaryDraftBuilder
 from wordindexer.document import DocumentReader
 from wordindexer.discovery import TermDiscovery
 from wordindexer.glossary import GlossaryBuilder
@@ -60,6 +61,25 @@ def cmd_analyze(args):
         report_path = report.write_json(args.json_output)
         print()
         print(f"JSON report       : {report_path}")
+
+
+def cmd_build_dictionary(args):
+
+    output = DictionaryDraftBuilder().build(
+        args.discovery,
+        args.output,
+        name=args.name,
+        version=args.dictionary_version,
+        author=args.author,
+        enable_candidates=args.enable_candidates,
+        csv_output=args.csv_output,
+    )
+
+    print(f"Dictionary draft : {output}")
+    print(f"Candidates enabled: {args.enable_candidates}")
+
+    if args.csv_output:
+        print(f"CSV review file  : {args.csv_output}")
 
 
 def cmd_discover(args):
@@ -176,6 +196,36 @@ def build_parser():
     )
 
     analyze_parser.set_defaults(func=cmd_analyze)
+
+    build_parser = sub.add_parser(
+        "build-dictionary",
+        help="Build a dictionary draft from discovery candidates",
+    )
+    build_parser.add_argument("discovery")
+    build_parser.add_argument("output")
+    build_parser.add_argument(
+        "--name",
+        default="Generated Dictionary Draft",
+    )
+    build_parser.add_argument(
+        "--version",
+        dest="dictionary_version",
+        default="0.1",
+    )
+    build_parser.add_argument(
+        "--author",
+        default="WordIndexer",
+    )
+    build_parser.add_argument(
+        "--enable-candidates",
+        action="store_true",
+        help="Enable all candidates without manual review",
+    )
+    build_parser.add_argument(
+        "--csv-output",
+        help="Also write a review CSV",
+    )
+    build_parser.set_defaults(func=cmd_build_dictionary)
 
     discover_parser = sub.add_parser(
         "discover",
