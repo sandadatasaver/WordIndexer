@@ -32,5 +32,10 @@ output/*.csv
 output/*.txt
 output/*.html
 
+# Build and installer artifacts
+build/
+dist/
+installer-output/
+
 # Keep output folder
 !output/.gitkeep

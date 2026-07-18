@@ -24,6 +24,12 @@ from wordindexer.version import VERSION
 logger = setup_logger()
 
 
+def cmd_gui(args):
+    from wordindexer.gui import run
+
+    raise SystemExit(run())
+
+
 def cmd_inspect(args):
 
     reader = DocumentReader(args.document)
@@ -216,6 +222,12 @@ def build_parser():
     )
 
     sub = parser.add_subparsers(dest="command")
+
+    gui_parser = sub.add_parser(
+        "gui",
+        help="Launch the optional desktop GUI",
+    )
+    gui_parser.set_defaults(func=cmd_gui)
 
     inspect_parser = sub.add_parser(
         "inspect",

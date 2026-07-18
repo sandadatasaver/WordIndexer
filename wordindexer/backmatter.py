@@ -114,8 +114,10 @@ class BackMatterWriter:
     def rebuild(
         self,
         document: Document,
-        report: GlossaryReport,
+        report: GlossaryReport | None,
         include_index_field: bool = True,
+        include_index_heading: bool = True,
+        include_glossary: bool = True,
     ) -> None:
         """Replace an existing Index section and add Glossary before author/contact matter."""
         body = document.element.body
@@ -184,28 +186,32 @@ class BackMatterWriter:
                 len(children),
             )
 
-        new_elements = [
-            self._new_text_paragraph(
-                "Index",
-                "Heading1",
-                page_break_before=True,
-            )
-        ]
+        new_elements: list[object] = []
 
-        if include_index_field:
-            new_elements.append(self._new_index_field_paragraph())
-
-        new_elements.append(
-            self._new_text_paragraph(
-                "Glossary",
-                "Heading1",
-                page_break_before=True,
+        if include_index_heading:
+            new_elements.append(
+                self._new_text_paragraph(
+                    "Index",
+                    "Heading1",
+                    page_break_before=True,
+                )
             )
-        )
-        new_elements.extend(
-            self._new_glossary_entry(entry)
-            for entry in report.entries
-        )
+
+            if include_index_field:
+                new_elements.append(self._new_index_field_paragraph())
+
+        if include_glossary:
+            new_elements.append(
+                self._new_text_paragraph(
+                    "Glossary",
+                    "Heading1",
+                    page_break_before=True,
+                )
+            )
+            new_elements.extend(
+                self._new_glossary_entry(entry)
+                for entry in (report.entries if report is not None else [])
+            )
 
         for offset, element in enumerate(new_elements):
             body.insert(insertion_position + offset, element)
