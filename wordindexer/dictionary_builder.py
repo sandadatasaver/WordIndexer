@@ -1,5 +1,5 @@
 """
-Build reviewable dictionary drafts from discovery reports.
+Build and finalize reviewable dictionary drafts from discovery reports.
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 class DictionaryDraftBuilder:
-    """Convert discovery candidates into a standard dictionary draft."""
+    """Convert discovery candidates into standard dictionary files."""
 
     def _build_data(
         self,
@@ -88,6 +88,86 @@ class DictionaryDraftBuilder:
         return destination
 
     @staticmethod
+    def _split_values(value: str | None) -> list[str]:
+        if not value:
+            return []
+        return [part.strip() for part in value.split(";") if part.strip()]
+
+    @staticmethod
+    def _parse_bool(value: str | None) -> bool:
+        return str(value or "").strip().casefold() in {
+            "1",
+            "true",
+            "yes",
+            "y",
+            "on",
+        }
+
+    def finalize_csv(
+        self,
+        csv_path: str | Path,
+        output_path: str | Path,
+        *,
+        name: str = "Reviewed Dictionary",
+        version: str = "1.0",
+        author: str = "WordIndexer",
+    ) -> Path:
+        """Convert an edited review CSV into a production dictionary."""
+        source = Path(csv_path)
+        entries: list[dict] = []
+
+        with source.open("r", newline="", encoding="utf-8-sig") as stream:
+            for row in csv.DictReader(stream):
+                term = (row.get("term") or "").strip()
+                if not term:
+                    continue
+
+                entry = {
+                    "term": term,
+                    "aliases": self._split_values(row.get("aliases")),
+                    "index_as": (
+                        row.get("index_as") or term
+                    ).strip(),
+                    "parent": (row.get("parent") or "").strip(),
+                    "subentry": (row.get("subentry") or "").strip(),
+                    "definition": (row.get("definition") or "").strip(),
+                    "see": (row.get("see") or "").strip(),
+                    "see_also": self._split_values(row.get("see_also")),
+                    "category": (row.get("category") or "").strip(),
+                    "enabled": self._parse_bool(row.get("enabled")),
+                    "include_in_glossary": self._parse_bool(
+                        row.get("include_in_glossary", "true")
+                    ),
+                    "source": (row.get("source") or "reviewed").strip(),
+                }
+
+                entries.append(
+                    {
+                        key: value
+                        for key, value in entry.items()
+                        if value not in ("", [], None)
+                    }
+                )
+
+        result = {
+            "metadata": {
+                "name": name,
+                "version": version,
+                "author": author,
+                "generated_from": str(source),
+                "review_required": False,
+            },
+            "entries": entries,
+        }
+        destination = Path(output_path)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(
+            json.dumps(result, indent=2),
+            encoding="utf-8",
+        )
+        return destination
+
+    @staticmethod
     def write_csv(data: dict, filename: str | Path) -> Path:
         """Write a flat review CSV from dictionary draft data."""
         path = Path(filename)
@@ -99,8 +179,15 @@ class DictionaryDraftBuilder:
                 fieldnames=[
                     "term",
                     "aliases",
+                    "index_as",
+                    "parent",
+                    "subentry",
+                    "definition",
+                    "see",
+                    "see_also",
                     "category",
                     "enabled",
+                    "include_in_glossary",
                     "source",
                     "occurrences",
                     "paragraphs",
@@ -115,8 +202,23 @@ class DictionaryDraftBuilder:
                     {
                         "term": entry.get("term", ""),
                         "aliases": "; ".join(entry.get("aliases", [])),
+                        "index_as": entry.get(
+                            "index_as",
+                            entry.get("term", ""),
+                        ),
+                        "parent": entry.get("parent", ""),
+                        "subentry": entry.get("subentry", ""),
+                        "definition": entry.get("definition", ""),
+                        "see": entry.get("see", ""),
+                        "see_also": "; ".join(
+                            entry.get("see_also", [])
+                        ),
                         "category": entry.get("category", ""),
                         "enabled": entry.get("enabled", False),
+                        "include_in_glossary": entry.get(
+                            "include_in_glossary",
+                            True,
+                        ),
                         "source": entry.get("source", ""),
                         "occurrences": evidence.get("occurrences", 0),
                         "paragraphs": "; ".join(

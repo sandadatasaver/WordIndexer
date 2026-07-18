@@ -49,8 +49,31 @@ def test_dictionary_draft_is_disabled_by_default(tmp_path):
     assert entries[0].term == "ImportExcel"
     assert entries[0].enabled is False
     assert csv_output.read_text(encoding="utf-8").startswith(
-        "term,aliases,category,enabled,source,occurrences,paragraphs,contexts"
+        "term,aliases,index_as,parent,subentry,definition,see,see_also,category,enabled"
     )
+
+
+def test_finalize_csv_creates_reviewed_dictionary(tmp_path):
+    reviewed = tmp_path / "reviewed.csv"
+    reviewed.write_text(
+        "term,aliases,index_as,parent,subentry,definition,see,see_also,"
+        "category,enabled,include_in_glossary,source,occurrences,paragraphs,contexts\n"
+        "ImportExcel,ie,ImportExcel,PowerShell,Modules,"
+        "An import module.,,PowerShell Core,Technology,True,True,reviewed,4,20;25,Useful term\n",
+        encoding="utf-8",
+    )
+    output = tmp_path / "final.json"
+
+    DictionaryDraftBuilder().finalize_csv(reviewed, output)
+    entries = DictionaryLoader(output).load_entries()
+
+    assert entries[0].term == "ImportExcel"
+    assert entries[0].aliases == ["ie"]
+    assert entries[0].parent == "PowerShell"
+    assert entries[0].subentry == "Modules"
+    assert entries[0].definition == "An import module."
+    assert entries[0].see_also == ["PowerShell Core"]
+    assert entries[0].enabled is True
 
 
 def test_dictionary_draft_can_enable_candidates_explicitly(tmp_path):
