@@ -7,6 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from wordindexer.cleaner import DocumentCleaner
 from wordindexer.dictionary import DictionaryEntry
 from wordindexer.document import DocumentReader
 from wordindexer.index_field import IndexFieldWriter
@@ -42,12 +43,15 @@ class IndexEngine:
         index_field_writer: IndexFieldWriter | None = None,
         include_index_field: bool = True,
         include_tables: bool = False,
+        remove_sections: list[str] | None = None,
     ):
         self.toc_detector = toc_detector or TOCDetector()
         self.xe_writer = xe_writer or XEWriter()
         self.index_field_writer = index_field_writer or IndexFieldWriter()
+        self.document_cleaner = DocumentCleaner()
         self.include_index_field = include_index_field
         self.include_tables = include_tables
+        self.remove_sections = remove_sections or []
 
     @staticmethod
     def _position(match: Match) -> tuple[int, int, int]:
@@ -84,6 +88,10 @@ class IndexEngine:
         source = Path(input_path)
         destination = Path(output_path)
         reader = DocumentReader(source)
+        self.document_cleaner.remove_sections(
+            reader.doc,
+            self.remove_sections,
+        )
         book = reader.load_book(include_tables=self.include_tables)
 
         toc = self.toc_detector.detect(reader.doc, book.paragraphs)

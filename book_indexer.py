@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 
+from wordindexer.backmatter import BackMatterWriter
 from wordindexer.config import ConfigManager
 from wordindexer.dictionary import DictionaryLoader
 from wordindexer.dictionary_builder import DictionaryDraftBuilder
@@ -53,6 +54,7 @@ def cmd_analyze(args):
         args.document,
         entries,
         include_tables=args.include_tables,
+        remove_sections=args.remove_section,
     )
 
     print(report.render_console())
@@ -82,6 +84,19 @@ def cmd_build_dictionary(args):
         print(f"CSV review file  : {args.csv_output}")
 
 
+def cmd_finalize_dictionary(args):
+
+    output = DictionaryDraftBuilder().finalize_csv(
+        args.review_csv,
+        args.output,
+        name=args.name,
+        version=args.dictionary_version,
+        author=args.author,
+    )
+
+    print(f"Final dictionary : {output}")
+
+
 def cmd_discover(args):
 
     entries = []
@@ -96,6 +111,7 @@ def cmd_discover(args):
         args.document,
         entries,
         include_tables=args.include_tables,
+        remove_sections=args.remove_section,
     )
 
     output = report.write_json(args.output)
@@ -111,6 +127,7 @@ def cmd_glossary(args):
         args.document,
         entries,
         include_tables=args.include_tables,
+        remove_sections=args.remove_section,
     )
 
     json_path = report.write_json(args.output)
@@ -122,6 +139,39 @@ def cmd_glossary(args):
         print(f"CSV report       : {csv_path}")
 
 
+def cmd_glossary_docx(args):
+
+    loader = DictionaryLoader(args.dictionary)
+    entries = loader.load_entries()
+
+    IndexEngine(
+        include_index_field=False,
+        include_tables=args.include_tables,
+        remove_sections=args.remove_section,
+    ).index(
+        input_path=args.document,
+        dictionary=entries,
+        output_path=args.output,
+    )
+
+    document = DocumentReader(args.output).doc
+    report = GlossaryBuilder().build(
+        args.document,
+        entries,
+        include_tables=args.include_tables,
+        remove_sections=args.remove_section,
+    )
+    BackMatterWriter().rebuild(
+        document,
+        report,
+        include_index_field=not args.no_index_field,
+    )
+    document.save(args.output)
+
+    print(f"Glossary entries : {len(report.entries)}")
+    print(f"Output           : {args.output}")
+
+
 def cmd_index(args):
 
     loader = DictionaryLoader(args.dictionary)
@@ -130,6 +180,7 @@ def cmd_index(args):
     result = IndexEngine(
         include_index_field=not args.no_index_field,
         include_tables=args.include_tables,
+        remove_sections=args.remove_section,
     ).index(
         input_path=args.document,
         dictionary=entries,
@@ -194,8 +245,35 @@ def build_parser():
         action="store_true",
         help="Include table-cell paragraphs in analysis",
     )
+    analyze_parser.add_argument(
+        "--remove-section",
+        action="append",
+        default=[],
+        help="Remove a Heading 1 section before analysis; repeatable",
+    )
 
     analyze_parser.set_defaults(func=cmd_analyze)
+
+    finalize_parser = sub.add_parser(
+        "finalize-dictionary",
+        help="Convert an edited review CSV into a dictionary",
+    )
+    finalize_parser.add_argument("review_csv")
+    finalize_parser.add_argument("output")
+    finalize_parser.add_argument(
+        "--name",
+        default="Reviewed Dictionary",
+    )
+    finalize_parser.add_argument(
+        "--version",
+        dest="dictionary_version",
+        default="1.0",
+    )
+    finalize_parser.add_argument(
+        "--author",
+        default="WordIndexer",
+    )
+    finalize_parser.set_defaults(func=cmd_finalize_dictionary)
 
     build_parser = sub.add_parser(
         "build-dictionary",
@@ -248,6 +326,12 @@ def build_parser():
         action="store_true",
         help="Include table-cell paragraphs",
     )
+    discover_parser.add_argument(
+        "--remove-section",
+        action="append",
+        default=[],
+        help="Remove a Heading 1 section before discovery; repeatable",
+    )
     discover_parser.set_defaults(func=cmd_discover)
 
     glossary_parser = sub.add_parser(
@@ -267,7 +351,38 @@ def build_parser():
         action="store_true",
         help="Include table-cell paragraphs in glossary analysis",
     )
+    glossary_parser.add_argument(
+        "--remove-section",
+        action="append",
+        default=[],
+        help="Remove a Heading 1 section before glossary analysis; repeatable",
+    )
     glossary_parser.set_defaults(func=cmd_glossary)
+
+    glossary_docx_parser = sub.add_parser(
+        "glossary-docx",
+        help="Create an indexed DOCX with a glossary section",
+    )
+    glossary_docx_parser.add_argument("document")
+    glossary_docx_parser.add_argument("dictionary")
+    glossary_docx_parser.add_argument("output")
+    glossary_docx_parser.add_argument(
+        "--no-index-field",
+        action="store_true",
+        help="Do not append a visible Word INDEX field",
+    )
+    glossary_docx_parser.add_argument(
+        "--include-tables",
+        action="store_true",
+        help="Include table-cell paragraphs",
+    )
+    glossary_docx_parser.add_argument(
+        "--remove-section",
+        action="append",
+        default=[],
+        help="Remove a Heading 1 section before output; repeatable",
+    )
+    glossary_docx_parser.set_defaults(func=cmd_glossary_docx)
 
     index_parser = sub.add_parser(
         "index",
@@ -290,6 +405,12 @@ def build_parser():
         "--include-tables",
         action="store_true",
         help="Include table-cell paragraphs in indexing",
+    )
+    index_parser.add_argument(
+        "--remove-section",
+        action="append",
+        default=[],
+        help="Remove a Heading 1 section before indexing; repeatable",
     )
 
     index_parser.set_defaults(func=cmd_index)

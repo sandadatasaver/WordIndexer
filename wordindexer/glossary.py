@@ -83,11 +83,13 @@ class GlossaryBuilder:
         input_path: str | Path,
         dictionary: list[DictionaryEntry],
         include_tables: bool = False,
+        remove_sections: list[str] | None = None,
     ) -> GlossaryReport:
         analysis = ReportBuilder().build(
             input_path,
             dictionary,
             include_tables=include_tables,
+            remove_sections=remove_sections,
         )
 
         counts = analysis.term_counts

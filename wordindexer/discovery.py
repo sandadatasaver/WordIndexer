@@ -9,6 +9,7 @@ import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+from wordindexer.cleaner import DocumentCleaner
 from wordindexer.dictionary import DictionaryEntry
 from wordindexer.document import DocumentReader
 from wordindexer.toc import TOCDetector
@@ -129,9 +130,14 @@ class TermDiscovery:
         input_path: str | Path,
         dictionary: list[DictionaryEntry] | None = None,
         include_tables: bool = False,
+        remove_sections: list[str] | None = None,
     ) -> DiscoveryReport:
         source = Path(input_path)
         reader = DocumentReader(source)
+        DocumentCleaner().remove_sections(
+            reader.doc,
+            remove_sections,
+        )
         book = reader.load_book(include_tables=include_tables)
         toc = TOCDetector().detect(reader.doc, book.paragraphs)
 
