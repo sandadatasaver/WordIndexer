@@ -1,0 +1,130 @@
+name: Package and Release WordIndexer
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: WordIndexer-Windows.zip
+          - os: macos-latest
+            artifact_name: WordIndexer-macOS.zip
+          - os: ubuntu-latest
+            artifact_name: WordIndexer-Linux.tar.gz
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -r requirements-gui.txt
+          python -m pip install -r requirements-dev.txt
+          python -m pip install pyinstaller
+
+      - name: Run tests
+        shell: bash
+        run: python -m pytest -q
+
+      - name: Build Windows executable
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          pyinstaller --onefile --noconsole --paths=. `
+            --add-data "docs;docs" `
+            --add-data "dictionaries;dictionaries" `
+            --add-data "branding;branding" `
+            --icon=logo.ico `
+            --name WordIndexer `
+            wordindexer/gui_launcher.py
+          Compress-Archive -Path dist/WordIndexer.exe -DestinationPath WordIndexer-Windows.zip
+
+      - name: Build macOS application
+        if: matrix.os == 'macos-latest'
+        shell: bash
+        run: |
+          mkdir -p WordIndexer.iconset
+          sips -z 16 16 branding/WordIndexer_user_transparent.png --out WordIndexer.iconset/icon_16x16.png
+          sips -z 32 32 branding/WordIndexer_user_transparent.png --out WordIndexer.iconset/icon_16x16@2x.png
+          sips -z 32 32 branding/WordIndexer_user_transparent.png --out WordIndexer.iconset/icon_32x32.png
+          sips -z 64 64 branding/WordIndexer_user_transparent.png --out WordIndexer.iconset/icon_32x32@2x.png
+          sips -z 128 128 branding/WordIndexer_user_transparent.png --out WordIndexer.iconset/icon_128x128.png
+          sips -z 256 256 branding/WordIndexer_user_transparent.png --out WordIndexer.iconset/icon_128x128@2x.png
+          sips -z 256 256 branding/WordIndexer_user_transparent.png --out WordIndexer.iconset/icon_256x256.png
+          sips -z 512 512 branding/WordIndexer_user_transparent.png --out WordIndexer.iconset/icon_256x256@2x.png
+          iconutil -c icns WordIndexer.iconset -o logo.icns
+          pyinstaller --onefile --windowed --paths=. \
+            --add-data "docs:docs" \
+            --add-data "dictionaries:dictionaries" \
+            --add-data "branding:branding" \
+            --icon=logo.icns \
+            --name WordIndexer \
+            wordindexer/gui_launcher.py
+          if [ -d dist/WordIndexer.app ]; then
+            ditto -c -k --sequesterRsrc --keepParent dist/WordIndexer.app WordIndexer-macOS.zip
+          else
+            ditto -c -k --sequesterRsrc dist/WordIndexer WordIndexer-macOS.zip
+          fi
+
+      - name: Build Linux executable
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          pyinstaller --onefile --windowed --paths=. \
+            --add-data "docs:docs" \
+            --add-data "dictionaries:dictionaries" \
+            --add-data "branding:branding" \
+            --name WordIndexer \
+            wordindexer/gui_launcher.py
+          tar -czf WordIndexer-Linux.tar.gz -C dist WordIndexer
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-build
+          path: ${{ matrix.artifact_name }}
+
+  create-release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - name: Create release and upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            WordIndexer-Windows.zip
+            WordIndexer-macOS.zip
+            WordIndexer-Linux.tar.gz
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
