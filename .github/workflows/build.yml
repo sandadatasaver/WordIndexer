@@ -115,6 +115,6 @@ jobs:
             WordIndexer-macOS.zip
             WordIndexer-Linux.tar.gz
           draft: false
-          prerelease: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
